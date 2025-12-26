@@ -18,14 +18,11 @@ This prototype explores a novel computing architecture inspired by hyperbolic ge
 
 The code generates a visual representation of the structure using NetworkX and Matplotlib.
 
-## Demo / Screenshot
 
-<!-- Replace these with actual images after running the code locally and uploading .png files to the repo -->
 
 ![Main visualization output](rha_visualization.png)
 *Example output showing dual spirals, honeycomb lattice, percolated graph with wormholes (red dashed), observers (red stars), and portals (blue dashed circles).*
 
-(Add more screenshots here if you generate variations, e.g., close-ups of portals or different recursion depths.)
 
 ## Requirements
 
