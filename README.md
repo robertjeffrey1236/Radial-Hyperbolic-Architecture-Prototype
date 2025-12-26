@@ -20,8 +20,6 @@ The code generates a visual representation of the structure using NetworkX and M
 
 
 
-![Main visualization output](rha_visualization.png)
-*Example output showing dual spirals, honeycomb lattice, percolated graph with wormholes (red dashed), observers (red stars), and portals (blue dashed circles).*
 
 
 ## Requirements
