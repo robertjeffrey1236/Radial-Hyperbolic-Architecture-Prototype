@@ -299,6 +299,15 @@ sample_r = 0.5
 base_phi = to_base_phi(sample_r, digits=10)
 print(f"Base-φ for {sample_r}: {base_phi}")
 
+def project_to_ball(pt, c=1.0):
+    norm_sq = torch.sum(pt ** 2, dim=-1, keepdim=True)
+    radius_sq = 1.0 / c
+    safe_radius = math.sqrt(radius_sq * 0.98)
+    mask = norm_sq >= radius_sq * 0.99
+    if mask.any():
+        pt = torch.where(mask, pt / torch.sqrt(norm_sq + 1e-12) * safe_radius, pt)
+    return pt
+
 # ========================
 # Minimal Universe from Binary Packet
 # ========================
