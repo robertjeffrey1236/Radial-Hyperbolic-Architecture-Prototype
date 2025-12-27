@@ -18,14 +18,14 @@ Exploration of Nassim Haramein's isotropic vector matrix in hyperbolic space.
 ![Haramein 64 Grid](rha_haramein64.png)
 
 Run `python rha_haramein64.py` to generate.
-37D Hyperbolic Honeycomb Lattice: Grown via golden-angle Möbius addition for exponential hierarchical capacity without boundary distortion.
-Dual Counter-Rotating Golden Spirals + Honeycomb Base: Optimal natural packing with atomic-scale resolution.
-Fractal Recursion & Lazy Loading: Resource-efficient handling of large hierarchies.
-Multi-Observers & Portals: Overlapping observer views enable distributed computation and direct packet transfer.
-Φ-Percolation & Wormholes: Probabilistic edge pruning and random shortcuts create emergent quasiperiodic patterns.
-Phonon Vibrations: Small perturbations add physical realism.
-Hybrid Encoding: Zeckendorf (Fibonacci-based unique addressing) + burst/run-length waveforms for operations.
-Minimal Universe Bootstrapping: Grow custom lattices/universes directly from binary seeds.
+ - 37D Hyperbolic Honeycomb Lattice: Grown via golden-angle Möbius addition for exponential hierarchical capacity without boundary distortion.
+ - Dual Counter-Rotating Golden Spirals + Honeycomb Base: Optimal natural packing with atomic-scale resolution.
+ - Fractal Recursion & Lazy Loading: Resource-efficient handling of large hierarchies.
+ - Multi-Observers & Portals: Overlapping observer views enable distributed computation and direct packet transfer.
+ - Φ-Percolation & Wormholes: Probabilistic edge pruning and random shortcuts create emergent quasiperiodic patterns.
+ - Phonon Vibrations: Small perturbations add physical realism.
+ - Hybrid Encoding: Zeckendorf (Fibonacci-based unique addressing) + burst/run-length waveforms for operations.
+ - Minimal Universe Bootstrapping: Grow custom lattices/universes directly from binary seeds.
 When run, the script:
 Builds and visualizes the main reference lattice (rha_atomic.png).
 Grows a minimal universe from an included binary seed and reports burst detection + growth statistics.
