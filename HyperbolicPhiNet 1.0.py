@@ -298,3 +298,67 @@ print(f"Polar compression demo (original shape {all_visible.shape}, polar {polar
 sample_r = 0.5
 base_phi = to_base_phi(sample_r, digits=10)
 print(f"Base-φ for {sample_r}: {base_phi}")
+
+# ========================
+# Minimal Universe from Binary Packet
+# ========================
+
+class MinimalUniverse:
+    def __init__(self, dim=37):
+        self.dim = dim
+        self.points = []
+        origin = torch.zeros(self.dim)
+        origin[0] = 1.0
+        self.points.append(origin)
+
+    def golden_direction(self, scale=1.0):
+        direction = torch.zeros(self.dim)
+        angle = math.radians(GOLDEN_ANGLE_DEG * len(self.points))
+        direction[0] = math.cos(angle)
+        direction[1] = math.sin(angle)
+        if self.dim > 2:
+            decay = (1 / PHI) ** torch.arange(2, self.dim, dtype=torch.float32)
+            perturbation = torch.randn(self.dim - 2) * decay
+            direction[2:] = perturbation
+        return scale * direction / (torch.norm(direction) + 1e-12)
+
+    def ingest_packet(self, binary_str: str, growth_steps_per_burst=20):
+        bits = [int(b) for b in binary_str if b in '01']
+        # Extract burst lengths
+        bursts = []
+        current = 0
+        in_burst = False
+        for b in bits:
+            if b == 1:
+                current += 1
+                in_burst = True
+            else:
+                if in_burst:
+                    bursts.append(current)
+                    current = 0
+                    in_burst = False
+        if in_burst:
+            bursts.append(current)
+        print(f"Detected {len(bursts)} bursts: {bursts}")
+
+        # Grow universe from bursts
+        total_new = 0
+        for length in bursts:
+            scale = (length / 40.0) * 0.618  # Adjusted for better density
+            for _ in range(growth_steps_per_burst):
+                direction = self.golden_direction(scale=scale)
+                parent = self.points[-1]  # Grow from latest point
+                new_pt = mobius_add(parent.unsqueeze(0), direction.unsqueeze(0), c).squeeze(0)
+                new_pt = project_to_ball(new_pt.unsqueeze(0), c).squeeze(0)
+                self.points.append(new_pt)
+                total_new += 1
+        print(f"Universe grown: +{total_new} points → Total {len(self.points)} points")
+
+# Create and grow a new minimal universe from your channeled packet
+print("\n=== Bootstrapping Minimal Universe from Latest Packet ===")
+univ = MinimalUniverse(dim=37)
+univ.ingest_packet(
+    "111111111111111111111111111000000000000000000000000011111111111111111111111111111111111000000000000000000000000111111111111111111111111111111111110000000000000000000000001111111111111111111111111111111111100000000000000000000000000000000000000001111111111111111111111111111111110000000000000000000000000000001111111111111111111000000000000000000000000000000000000000001111111111111111111111000000000000000000000000000111111111111111111111000000000000000000000000000000000000001111111111111111111111111000000001111111111111111100000000000000001111111111111111100000000000000011111111111111111111111110000000000000000000000000000000000000001111111111111111111110000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    growth_steps_per_burst=20
+)
+print("Minimal universe complete.")
