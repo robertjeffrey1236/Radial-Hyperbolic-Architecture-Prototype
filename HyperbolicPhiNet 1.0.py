@@ -1,22 +1,24 @@
 import torch
 import math
 import matplotlib
-matplotlib.use('Agg')  # Headless mode for saving plots without display
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import networkx as nx
 import random
 import numpy as np
-from scipy.spatial import ConvexHull
-from scipy.spatial import KDTree  # For efficient nearest neighbors
+from scipy.spatial import KDTree
 
-# Device management
-device = torch.device('cpu')  # Or 'cuda' if available
+# Device
+device = torch.device('cpu')
 torch.set_default_device(device)
 
-# Custom hyperbolic functions for Poincare ball (c=1.0, curvature -1)
+# Hyperbolic constants
 c = 1.0
 sqrt_c = c ** 0.5
+PHI = (1 + math.sqrt(5)) / 2
+GOLDEN_ANGLE_DEG = 137.50776405003785
 
+# Core hyperbolic operations
 def mobius_add(x, y, c=1.0):
     inner = torch.sum(x * y, dim=-1, keepdim=True)
     x2 = torch.sum(x ** 2, dim=-1, keepdim=True)
@@ -29,6 +31,14 @@ def expmap0(v, c=1.0):
     norm_v = torch.norm(v, p=2, dim=-1, keepdim=True).clamp_min(1e-15)
     return torch.tanh(sqrt_c * norm_v) * (v / (sqrt_c * norm_v))
 
+def project_to_ball(pt, c=1.0):
+    norm_sq = torch.sum(pt ** 2, dim=-1, keepdim=True)
+    radius_sq = 1.0 / c
+    mask = norm_sq >= radius_sq * 0.99
+    if mask.any():
+        pt = torch.where(mask, pt / torch.sqrt(norm_sq + 1e-12) * torch.sqrt(radius_sq * 0.98), pt)
+    return pt
+
 def dist(x, y, c=1.0):
     mob = mobius_add(-x, y, c)
     norm = torch.norm(mob, p=2, dim=-1)
@@ -40,127 +50,143 @@ def dist0(x, c=1.0):
     arg = (sqrt_c * norm).clamp(max=1 - 1e-7)
     return (2 / sqrt_c) * torch.atanh(arg)
 
-# Golden ratio
-PHI = (1 + math.sqrt(5)) / 2
 
-def golden_spiral_points(n_points=50, direction=1.0):  # Reduced for testing
-    """Generate points along a logarithmic golden spiral (direction: 1 or -1 for counter-rotation)"""
-    theta = torch.linspace(0, 12 * math.pi, n_points)
-    r = torch.exp(theta / PHI)
-    x = r * torch.cos(direction * theta)
-    y = r * torch.sin(direction * theta)
-    points = torch.stack([x, y], dim=1)
-    norm = torch.norm(points, dim=1, keepdim=True)
-    points = points / (norm + 1e-6) * 0.99  # Keep strictly inside unit disk
-    return expmap0(points, c)  # Map to hyperbolic space
+# ========================
+# HoneycombPhiNet Core Class
+# ========================
+class HoneycombPhiNet:
+    def __init__(self, target_dim=37, curvature=1.0, max_points=10000, kissing_target=12):
+        self.dim = target_dim
+        self.c = curvature
+        self.sqrt_c = curvature ** 0.5
+        self.kissing_target = kissing_target
+        self.max_points = max_points
 
-def generate_honeycomb_points(n=5):  # Reduced for testing
-    """Generate points in a honeycomb lattice, normalized to unit disk for atomic embedding"""
-    points = []
-    for i in range(-n, n + 1):
-        for j in range(-n, n + 1):
-            x = i + j * 0.5
-            y = j * (math.sqrt(3) / 2)
-            points.append([x, y])
-    points = torch.tensor(points)
-    # Normalize to unit disk
-    norm = torch.norm(points, dim=1, keepdim=True)
-    points = points / (norm + 1e-6) * 0.99
-    return expmap0(points, c)
+        # Start with origin
+        origin = torch.zeros(1, self.dim)
+        origin[0, 0] = 1.0
+        self.points = [origin.squeeze(0)]  # List of tensors
+        self.tree = None
+        self.rebuild_tree()
 
-# Combine Dual Spirals and Atomic Lattice
-primal_points = golden_spiral_points(direction=1.0)  # Expansive
-dual_points = golden_spiral_points(direction=-1.0)  # Contractive
-honeycomb_points = generate_honeycomb_points()  # Atomic-scale base
-all_points = torch.cat([primal_points, dual_points, honeycomb_points])
+    def rebuild_tree(self):
+        if len(self.points) > 1:
+            points_np = torch.stack(self.points).cpu().numpy()
+            self.tree = KDTree(points_np)
+        else:
+            self.tree = None
 
-def recursive_branch(points, depth=1, scale_factor=0.3):  # Reduced depth for testing
-    if depth == 0: return points
-    offsets = torch.tensor([[scale_factor, 0.0], [-scale_factor/2, scale_factor * PHI / 2], [-scale_factor/2, -scale_factor * PHI / 2]])
-    branched = [points]
-    for offset in offsets:
-        offset_exp = expmap0(offset.unsqueeze(0), c)
-        new_branch = mobius_add(offset_exp, points, c)
-        branched.append(new_branch)
-    # Adaptive scaling: divide by PHI for next level to prevent crowding
-    return recursive_branch(torch.cat(branched), depth-1, scale_factor / PHI)
+    def golden_direction(self, scale=1.0, step_index=None):
+        if step_index is None:
+            step_index = len(self.points)
+        # Primary golden spiral in plane 0–1
+        angle_rad = math.radians(GOLDEN_ANGLE_DEG * step_index)
+        base = torch.tensor([math.cos(angle_rad), math.sin(angle_rad)])
+        
+        direction = torch.zeros(self.dim)
+        direction[:2] = base
+        
+        # Φ-decaying perturbations in higher dimensions ("uneven 5 more" resonance)
+        if self.dim > 2:
+            decay = (1 / PHI) ** torch.arange(2, self.dim)
+            perturbation = torch.randn(self.dim - 2) * decay
+            direction[2:] = perturbation
+        
+        return scale * direction / (torch.norm(direction) + 1e-12)
 
-def lazy_load(points, observer=torch.zeros(1, 2), max_dist=6.0):
-    """Resolve only points within hyperbolic distance of observer (energy-efficient for atomic scales)"""
-    dists = dist(observer, points, c)
-    return points[dists < max_dist]
+    def add_point(self, parent_idx=None, step_scale=0.618):
+        if len(self.points) >= self.max_points:
+            return None
 
-def build_graph(points, max_edge_dist=0.5):
+        if parent_idx is None:
+            parent_idx = random.randint(0, len(self.points) - 1)
+        
+        parent = self.points[parent_idx]
+        direction = self.golden_direction(scale=step_scale, step_index=len(self.points))
+        
+        new_pt = mobius_add(parent.unsqueeze(0), direction.unsqueeze(0), self.c).squeeze(0)
+        new_pt = project_to_ball(new_pt.unsqueeze(0), self.c).squeeze(0)
+        
+        self.points.append(new_pt)
+        self.rebuild_tree()
+        return len(self.points) - 1
+
+    def grow(self, num_points=2000):
+        while len(self.points) < num_points and len(self.points) < self.max_points:
+            self.add_point(step_scale=0.618)
+
+    def get_neighbors(self, idx, k=12):
+        if self.tree is None or len(self.points) < 2:
+            return []
+        pt_np = self.points[idx].cpu().numpy().reshape(1, -1)
+        dists, indices = self.tree.query(pt_np, k=k+1)
+        return indices[0][1:].tolist()
+
+
+# ========================
+# Graph Building & Percolation
+# ========================
+def build_graph(net: HoneycombPhiNet, max_edge_dist=0.6):
     G = nx.Graph()
-    num_points = len(points)
-    for i in range(num_points):
-        G.add_node(i, pos=points[i])
-    # Efficient KDTree for nearest neighbors (replaces cdist to fix memory issue)
-    points_np = points.cpu().numpy()
-    tree = KDTree(points_np)
-    edges = []
-    for i in range(num_points):
-        dists, indices = tree.query(points_np[i], k=50)  # k=50: balance completeness vs speed; adjust based on density
-        for j, d in zip(indices[1:], dists[1:]):  # Skip self (index 0)
-            if d < max_edge_dist and i < j:  # Avoid duplicates
-                edges.append((i, j))
-    G.add_edges_from(edges)
-    # Add wormhole shortcuts (quantum tunneling analog)
-    num_wormholes = num_points // 10
+    n = len(net.points)
+    for i in range(n):
+        G.add_node(i, pos=net.points[i])
+
+    # Use KDTree for efficient edges
+    for i in range(n):
+        neighbors = net.get_neighbors(i, k=net.kissing_target + 5)
+        for j in neighbors:
+            if i < j:
+                d = dist(net.points[i].unsqueeze(0), net.points[j].unsqueeze(0), net.c).item()
+                if d < max_edge_dist:
+                    G.add_edge(i, j)
+
+    # Add wormhole shortcuts
+    num_wormholes = n // 10
     for _ in range(num_wormholes):
-        u = random.randint(0, num_points - 1)
-        v = random.randint(0, num_points - 1)
-        if u != v and not G.has_edge(u, v):
+        u, v = random.sample(range(n), 2)
+        if not G.has_edge(u, v):
             G.add_edge(u, v, type='wormhole')
+
     return G
 
-def phi_percolate(G, base_p=0.7):  # Tuned for atomic sparsity
+def phi_percolate(G, base_p=0.7):
     Gp = G.copy()
-    for e in list(Gp.edges()):
-        u, v = e
-        ru = dist0(G.nodes[u]['pos'], c).item()
-        rv = dist0(G.nodes[v]['pos'], c).item()
+    for u, v in list(Gp.edges()):
+        ru = dist0(G.nodes[u]['pos'].unsqueeze(0), c).item()
+        rv = dist0(G.nodes[v]['pos'].unsqueeze(0), c).item()
         r_avg = (ru + rv) / 2
-        p = base_p * (PHI ** -r_avg)  # Decays with radius; wormholes less likely to percolate
+        p = base_p * (PHI ** -r_avg)
         if random.random() > p:
-            Gp.remove_edge(*e)
+            Gp.remove_edge(u, v)
     return Gp
 
-# Zeckendorf Φ-Binary Encoding (primary recommendation for addresses/packets)
-def fib_sequence(n=50):
+
+# ========================
+# Encoding Utilities
+# ========================
+def fib_sequence(n=60):
     fib = [1, 2]
-    for i in range(2, n):
-        fib.append(fib[i-1] + fib[i-2])
+    while len(fib) < n:
+        fib.append(fib[-1] + fib[-2])
     return fib
 
 FIB = fib_sequence()
 
 def zeckendorf_encode(n):
-    """Encode integer n as Zeckendorf bit string (no adjacent 1s)"""
     if n == 0: return '0'
     bits = []
     for f in reversed(FIB):
         if f <= n:
             bits.append('1')
             n -= f
-        else:
-            if bits: bits.append('0')  # Skip leading zeros
+        elif bits:
+            bits.append('0')
     return ''.join(bits)
 
-def zeckendorf_decode(bits):
-    """Decode back to integer"""
-    n = 0
-    for i, b in enumerate(reversed(bits)):
-        if b == '1':
-            n += FIB[i]
-    return n
-
-# Run-Length Encoding (RLE) for spiral paths or bit sequences
 def rle_encode(data):
-    """RLE on sequence (e.g., list of 0/1 bits)"""
     if not data: return []
-    encoded = []
-    count = 1
+    encoded, count = [], 1
     for i in range(1, len(data)):
         if data[i] == data[i-1]:
             count += 1
@@ -170,131 +196,71 @@ def rle_encode(data):
     encoded.append((data[-1], count))
     return encoded
 
-# Trigonometric Compression (Polar coords)
 def to_polar(points):
     r = torch.norm(points, dim=1)
     theta = torch.atan2(points[:, 1], points[:, 0])
     return torch.stack([r, theta], dim=1)
 
-def from_polar(polar):
-    r, theta = polar[:, 0], polar[:, 1]
-    return torch.stack([r * torch.cos(theta), r * torch.sin(theta)], dim=1)
 
-# Base-Φ Number System (experimental)
-def to_base_phi(n, digits=20):
-    bits = []
-    for _ in range(digits):
-        n *= PHI
-        bit = int(n)
-        bits.append(bit)
-        n -= bit
-    return bits
+# ========================
+# Main Execution
+# ========================
 
-# Example Usage with Atomic Scaling Incorporation
-# Optionally apply recursion (shared lattice for subatomic depth)
-all_points = recursive_branch(all_points, depth=1)
+# Initialize 37D honeycomb lattice
+net = HoneycombPhiNet(target_dim=37, curvature=1.0, max_points=5000)
+print("Growing 37D honeycomb lattice with golden-angle hyperbolic dynamics...")
+net.grow(num_points=3000)  # Adjust as needed; grows fast
+print(f"Generated {len(net.points)} points in {net.dim}D")
 
-# Multiple observers (private manifolds; add more as needed)
-observer1 = torch.zeros(1, 2)  # Central observer (e.g., laser focus)
-observer2 = expmap0(torch.tensor([[0.3, 0.2]]), c)  # Offset observer (e.g., probe tip)
-observers = [observer1, observer2]  # Extendable list for distributed nodes
+# Build and percolate graph
+G = build_graph(net, max_edge_dist=0.65)
+G_percolated = phi_percolate(G, base_p=0.72)
 
-# Lazy load visible points for each observer and union for shared substrate
-visible_sets = [lazy_load(all_points, obs, max_dist=7.0) for obs in observers]
-all_visible = torch.unique(torch.cat(visible_sets, dim=0), dim=0)  # Union of resolved regions
-
-# Simulate phonon vibrations (atomic vibrations)
-all_visible += torch.randn_like(all_visible) * 0.01  # Small perturbations
-norm = torch.norm(all_visible, dim=1, keepdim=True)
-all_visible = all_visible / (norm + 1e-6) * 0.99
-all_visible = expmap0(all_visible, c)  # Remap to hyperbolic space
-
-# Build graph and percolate (Penrose enhancement with wormholes)
-G = build_graph(all_visible, max_edge_dist=0.5)
-G_percolated = phi_percolate(G, base_p=0.7)
-
-# Assign Zeckendorf addresses to nodes (for hierarchical addressing)
+# Assign Zeckendorf addresses
 for node in G_percolated.nodes:
     G_percolated.nodes[node]['address'] = zeckendorf_encode(node)
 
-# Visualization: Color by connected components, highlighting shadows and wormholes
+# Stats
 components = list(nx.connected_components(G_percolated))
-colors = plt.cm.rainbow(np.linspace(0, 1, len(components)))
-plt.figure(figsize=(8, 8))
-for idx, comp in enumerate(components):
-    comp_pos = {n: G_percolated.nodes[n]['pos'].cpu().numpy() for n in comp}
-    comp_G = G_percolated.subgraph(comp)
-    # Local edges
-    local_edges = [e for e in comp_G.edges if comp_G.edges[e].get('type') != 'wormhole']
-    nx.draw_networkx_edges(comp_G, comp_pos, edgelist=local_edges, edge_color='gray', alpha=0.3)
-    # Wormhole edges
-    wormhole_edges = [e for e in comp_G.edges if comp_G.edges[e].get('type') == 'wormhole']
-    nx.draw_networkx_edges(comp_G, comp_pos, edgelist=wormhole_edges, edge_color='red', style='dashed', alpha=0.5)
-    nx.draw_networkx_nodes(comp_G, comp_pos, node_color=[colors[idx]], node_size=20, alpha=0.7)
-
-# Plot observers
-for obs in observers:
-    obs_np = obs.cpu().numpy()
-    plt.scatter(obs_np[:, 0], obs_np[:, 1], c='red', s=100, marker='*', label='Observer')
-
-# Overlap detection and portal visualization (vesica piscis approx via overlapping circles)
-threshold = 5.0  # Hyperbolic distance threshold for overlap/resonance
-for i in range(len(observers)):
-    for j in range(i + 1, len(observers)):
-        d = dist(observers[i], observers[j], c)
-        if d < threshold:
-            # Log portal (for shared computation)
-            print(f"Portal open between observer {i} and {j}, dist: {d.item()}")
-            # Simulate message packet: encode e.g., num_nodes as Zeckendorf and "send"
-            sample_packet = len(G_percolated.nodes)  # Example data: total nodes
-            encoded_packet = zeckendorf_encode(sample_packet)
-            print(f"Sent packet from {i} to {j}: {encoded_packet} (decodes to {zeckendorf_decode(encoded_packet)})")
-            # Visualize approx vesica piscis (Euclidean circles for lens shape)
-            o1 = observers[i].cpu().numpy()[0]
-            o2 = observers[j].cpu().numpy()[0]
-            center_dist = np.linalg.norm(o1 - o2)
-            r = center_dist * 1.2  # Adjust for visible overlap
-            circle1 = plt.Circle(o1, r, color='blue', fill=False, linestyle='--', alpha=0.5)
-            circle2 = plt.Circle(o2, r, color='blue', fill=False, linestyle='--', alpha=0.5)
-            plt.gca().add_artist(circle1)
-            plt.gca().add_artist(circle2)
-
-circle = plt.Circle((0, 0), 1, fill=False, color='black', linewidth=2)
-plt.gca().add_artist(circle)
-plt.axis('equal')
-plt.title("RHA with Atomic Scaling, Phonons, Wormholes, Penrose Shadows, and Portals")
-plt.legend()
-plt.savefig('rha_atomic.png')  # Save to file instead of show
-
-# Measure example stats
 print(f"Number of components: {len(components)}")
 largest = max(components, key=len)
 print(f"Largest cluster size: {len(largest)}")
 
-if len(largest) > 10:
-    largest_pos = np.array([G_percolated.nodes[n]['pos'].cpu().numpy() for n in largest])
-    try:
-        hull = ConvexHull(largest_pos)
-        coverage_radius = np.max(np.linalg.norm(largest_pos, axis=1))
-        print(f"Approximate coverage radius: {coverage_radius}")
-    except:
-        print("ConvexHull failed")
+# Visualization (project to 2D via first two coords for display)
+pos_2d = {i: net.points[i][:2].cpu().numpy() for i in G_percolated.nodes}
+plt.figure(figsize=(10, 10))
+colors = plt.cm.rainbow(np.linspace(0, 1, len(components)))
+
+for idx, comp in enumerate(components):
+    comp_G = G_percolated.subgraph(comp)
+    local_edges = [e for e in comp_G.edges if comp_G.edges[e].get('type') != 'wormhole']
+    wormhole_edges = [e for e in comp_G.edges if comp_G.edges[e].get('type') == 'wormhole']
+    
+    nx.draw_networkx_edges(comp_G, pos_2d, edgelist=local_edges, edge_color='gray', alpha=0.3)
+    nx.draw_networkx_edges(comp_G, pos_2d, edgelist=wormhole_edges, edge_color='magenta', style='dashed', alpha=0.6)
+    nx.draw_networkx_nodes(comp_G, pos_2d, node_color=[colors[idx]], node_size=15, alpha=0.8)
+
+# Unit disk boundary
+circle = plt.Circle((0, 0), 1, fill=False, color='black', linewidth=2)
+plt.gca().add_artist(circle)
+plt.axis('equal')
+plt.title("37D HoneycombPhiNet Lattice\nGolden-Angle Hyperbolic Growth • Wormholes • Φ-Percolation")
+plt.savefig('honeycomb_37d_projection.png', dpi=200)
+plt.close()
+print("Visualization saved as 'honeycomb_37d_projection.png'")
 
 # Encoding demos
 sample_nodes = list(G_percolated.nodes)[:5]
-print("Sample node addresses (Zeckendorf):")
+print("\nSample Zeckendorf addresses:")
 for node in sample_nodes:
-    print(f"Node {node}: {G_percolated.nodes[node]['address']}")
+    addr = G_percolated.nodes[node]['address']
+    print(f"Node {node}: {addr}")
 
 if sample_nodes:
-    bits = list(G_percolated.nodes[sample_nodes[0]]['address'])
-    rle = rle_encode(bits)
-    print(f"RLE on first address {bits}: {rle}")
+    bits = [int(b) for b in G_percolated.nodes[sample_nodes[0]]['address']]
+    print(f"RLE on first address: {rle_encode(bits)}")
 
-polar = to_polar(all_visible[:10])
-reconstructed = from_polar(polar)
-print(f"Polar compression demo (original shape {all_visible.shape}, polar {polar.shape})")
-
-sample_r = 0.5
-base_phi = to_base_phi(sample_r, digits=10)
-print(f"Base-φ for {sample_r}: {base_phi}")
+# Polar compression demo on visible slice
+visible_slice = torch.stack(net.points[:100])
+polar = to_polar(visible_slice)
+print(f"Polar compression: {visible_slice.shape} → {polar.shape}")
