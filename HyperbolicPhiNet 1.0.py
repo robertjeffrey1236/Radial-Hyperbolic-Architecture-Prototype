@@ -7,7 +7,7 @@ import networkx as nx
 import random
 import numpy as np
 from scipy.spatial import KDTree
-
+from channel_decoder import FibonacciChannelDecoder
 # Device
 device = torch.device('cpu')
 torch.set_default_device(device)
