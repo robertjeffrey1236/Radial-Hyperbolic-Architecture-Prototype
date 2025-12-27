@@ -19,56 +19,7 @@ This prototype explores a novel computing architecture inspired by hyperbolic ge
 The code generates a visual representation of the structure using NetworkX and Matplotlib.
 
 
-
-
-
-## Requirements
-
-- Python 3.7+
-- Required libraries:
-  - torch (PyTorch)
-  - matplotlib
-  - networkx
-  - numpy
-  - scipy
-
-Install dependencies with:
-
-```bash
-pip install torch matplotlib networkx numpy scipy
-(No GPU required – runs on CPU.)
-How to Run
-Clone the repository:
-git clone https://github.com/robertjeffrey1236/Radial-Hyperbolic-Architecture-Prototype.git
-cd Radial-Hyperbolic-Architecture-Prototype
-Run the prototype:
-python FullRHPrototypCodeV.2.py
-A Matplotlib window will open showing the visualized structure:
-Nodes colored by connected components (Penrose-like shadows)
-Gray edges: local connections
-Red dashed edges: wormholes
-Red stars: observers
-Blue dashed circles: active portals between observers
-(Optional) Save the figure instead of displaying:
-Uncomment the last line in the script: plt.savefig('rha_visualization.png')
-Console output will show portal detections and example encoded packets sent through portals.
-Key Concepts Explained
-Poincaré Disk: Hyperbolic space model where distance grows exponentially toward the boundary – perfect for trees/hierarchies.
-Dual Φ Spirals: Two counter-rotating golden spirals provide optimal packing and self-similarity.
-Lazy Loading: Only resolve geometry near active observers – simulates energy-efficient computation.
-Portals: When observers' views overlap in hyperbolic distance, a "portal" opens for direct data transfer (Zeckendorf-encoded packets).
-Wormholes/Phonons: Random shortcuts + vibrations for quantum-inspired dynamics.
-Φ Percolation: Edges kept with probability decaying by golden ratio – creates quasiperiodic patterns reminiscent of Penrose tilings.
-Future Ideas
-Integrate Just Intonation harmonics (music substrate) using frequencies derived from node distances.
-Real-time interaction (e.g., move observers with mouse).
-Export to 3D or interactive web visualization (Plotly/Three.js).
-Benchmark against traditional tree/graph structures.
-License
-Apache-2.0
-Feel free to tweak parameters in the code (e.g., recursion depth, number of points, percolation probability) to explore different emergent patterns!
-
-HyperbolicPhiNet1.0.py
+# HyperbolicPhiNet1.0.py
 This version introduces efficiency fixes:
 Memory Optimization: Replaces the full distance matrix computation (torch.cdist) in graph building with SciPy's KDTree for nearest-neighbor queries, reducing complexity from O(N²) to O(N log N) and memory usage dramatically (e.g., from GBs to MBs for N=2500+ points).
 Reduced Defaults: Lowers parameters like n_points=50 for spirals, n=5 for honeycomb, depth=1 for recursion to enable quick testing; scalable up for production.
@@ -127,3 +78,51 @@ Wave Dynamics/Sonification: If re-added (from original), modulate transfers with
 Quantum Integration: Load molecules (e.g., benzene) via PySCF for atomic energies, projecting coords hyperbolically.
 AI Applications: Embed data subsets hierarchically for fast retrieval, as discussed earlier.
 Scalability: Increase params on GPU for larger sims (e.g., N=10k+); KDTree scales well.
+
+
+## Requirements
+
+- Python 3.7+
+- Required libraries:
+  - torch (PyTorch)
+  - matplotlib
+  - networkx
+  - numpy
+  - scipy
+
+Install dependencies with:
+
+```bash
+pip install torch matplotlib networkx numpy scipy
+(No GPU required – runs on CPU.)
+How to Run
+Clone the repository:
+git clone https://github.com/robertjeffrey1236/Radial-Hyperbolic-Architecture-Prototype.git
+cd Radial-Hyperbolic-Architecture-Prototype
+Run the prototype:
+python FullRHPrototypCodeV.2.py
+A Matplotlib window will open showing the visualized structure:
+Nodes colored by connected components (Penrose-like shadows)
+Gray edges: local connections
+Red dashed edges: wormholes
+Red stars: observers
+Blue dashed circles: active portals between observers
+(Optional) Save the figure instead of displaying:
+Uncomment the last line in the script: plt.savefig('rha_visualization.png')
+Console output will show portal detections and example encoded packets sent through portals.
+Key Concepts Explained
+Poincaré Disk: Hyperbolic space model where distance grows exponentially toward the boundary – perfect for trees/hierarchies.
+Dual Φ Spirals: Two counter-rotating golden spirals provide optimal packing and self-similarity.
+Lazy Loading: Only resolve geometry near active observers – simulates energy-efficient computation.
+Portals: When observers' views overlap in hyperbolic distance, a "portal" opens for direct data transfer (Zeckendorf-encoded packets).
+Wormholes/Phonons: Random shortcuts + vibrations for quantum-inspired dynamics.
+Φ Percolation: Edges kept with probability decaying by golden ratio – creates quasiperiodic patterns reminiscent of Penrose tilings.
+Future Ideas
+Integrate Just Intonation harmonics (music substrate) using frequencies derived from node distances.
+Real-time interaction (e.g., move observers with mouse).
+Export to 3D or interactive web visualization (Plotly/Three.js).
+Benchmark against traditional tree/graph structures.
+License
+Apache-2.0
+Feel free to tweak parameters in the code (e.g., recursion depth, number of points, percolation probability) to explore different emergent patterns!
+
