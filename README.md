@@ -11,6 +11,15 @@ Uses burst lengths to modulate the scale of golden-angle (137.5°) growth steps 
 Applies Φ-decaying perturbations in higher dimensions for natural hierarchical structure.
 Result: A complete, self-organized lattice emerges entirely from the binary input — no predefined geometry beyond the golden-angle growth rule.
 Binary packets act as compressed blueprints for custom hierarchical structures, enabling minimal-seed generative computing.
+
+### Toy Holographic Principle
+Exploration of the holographic principle (bulk information encoded on a boundary) using radial golden-ratio recursion in hyperbolic (Poincaré disk) space.
+
+Negative curvature + Φ scaling naturally makes the outermost shell dominate (~61.8% of total structure in the limit, ≈ 1/φ), echoing how AdS/CFT holography encodes vast bulk complexity on a lower-dimensional boundary.
+
+![Holographic Toy Model](rha_holography.png)
+
+Run `python rha_holography.py` to generate.
 ### Three Generations Toy Model
 Toy exploration of why the Standard Model has exactly three particle generations—emergent from golden-ratio recursion in hyperbolic space.
 
