@@ -12,6 +12,12 @@ Applies Φ-decaying perturbations in higher dimensions for natural hierarchical 
 Result: A complete, self-organized lattice emerges entirely from the binary input — no predefined geometry beyond the golden-angle growth rule.
 Binary packets act as compressed blueprints for custom hierarchical structures, enabling minimal-seed generative computing.
  - Core Features
+### Haramein 64 Tetrahedron Grid Mode
+Exploration of Nassim Haramein's isotropic vector matrix in hyperbolic space.
+
+![Haramein 64 Grid](rha_haramein64.png)
+
+Run `python rha_haramein64.py` to generate.
 37D Hyperbolic Honeycomb Lattice: Grown via golden-angle Möbius addition for exponential hierarchical capacity without boundary distortion.
 Dual Counter-Rotating Golden Spirals + Honeycomb Base: Optimal natural packing with atomic-scale resolution.
 Fractal Recursion & Lazy Loading: Resource-efficient handling of large hierarchies.
