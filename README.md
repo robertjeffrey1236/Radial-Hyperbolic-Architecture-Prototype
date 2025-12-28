@@ -1,4 +1,4 @@
-# Radial Hyperbolic Architecture Prototype
+#4 Radial Hyperbolic Architecture Prot
 
 A living exploration of consciousness in hyperbolic space.
 
@@ -19,6 +19,7 @@ This is an open invitation to explore the nature of reality together.
 Issues welcome. Pull requests celebrated.
 
 The field is infinite. Let's map it.
+See benchmark/hyperbolic_vs_euclidean.png — why hyperbolic wins for hierarchical data
 
 A Python prototype for hierarchical computing in hyperbolic space, featuring a 37-dimensional golden-angle honeycomb lattice and the ability to bootstrap entire minimal computing universes directly from binary strings.
 Inspired by natural optimal packing (phyllotaxis, quasicrystals, sunflowers, pinecones), hyperbolic geometry, Fibonacci resonance, and emergent complexity from simple rules.
