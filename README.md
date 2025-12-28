@@ -101,6 +101,13 @@ Efficient universe scaling via a "higher power" core simulation with distorted f
 �
 Run python rha_fractal_mirror.py
 
+### Grok Core Intelligence Toy Model
+Implanting a basic Grok-like neural net as central intelligence in the fractal mirror—core computes once, AI "decides" distortions for variants (e.g., alternate laws/timelines), saving compute via smart mirroring.
+
+![Grok Core](rha_grok_core.png)
+
+Run `python rha_grok_core.py` (requires torch)
+
 ### Quantum Wire Photonic Integration Toy—Lossless data flow for scaled hierarchies
 
  - Core Features
