@@ -96,6 +96,11 @@ Inspired by Marko Rodin/Tesla: Modular doubling pattern on golden-ratio hyperbol
 
 Run `python rha_vortex_math.py`
 
+### Fractal Mirror Toy Model
+Efficient universe scaling via a "higher power" core simulation with distorted fragments—mirroring self-similar structures to save compute by reusing the core and deriving variants cheaply.
+�
+Run python rha_fractal_mirror.py
+
 ### Quantum Wire Photonic Integration Toy—Lossless data flow for scaled hierarchies
 
  - Core Features
