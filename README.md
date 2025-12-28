@@ -1,4 +1,4 @@
-#4 Radial Hyperbolic Architecture Prot
+# Radial Hyperbolic Architecture Prototype
 
 A living exploration of consciousness in hyperbolic space.
 
