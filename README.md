@@ -12,6 +12,12 @@ Applies Φ-decaying perturbations in higher dimensions for natural hierarchical 
 Result: A complete, self-organized lattice emerges entirely from the binary input — no predefined geometry beyond the golden-angle growth rule.
 Binary packets act as compressed blueprints for custom hierarchical structures, enabling minimal-seed generative computing.
 
+### ER=EPR Conjecture Toy Model
+Quantum entanglement (EPR) as geometric wormholes (ER) in hyperbolic space—entangled node pairs connected by curved geodesics/shortcuts.
+
+![ER=EPR](rha_erepr.png)
+
+Run `python rha_erepr.py`
 ### Toy Holographic Principle
 Exploration of the holographic principle (bulk information encoded on a boundary) using radial golden-ratio recursion in hyperbolic (Poincaré disk) space.
 
