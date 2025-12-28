@@ -88,6 +88,14 @@ Exploration of Nassim Haramein's isotropic vector matrix in hyperbolic space.
 ![Haramein 64 Grid](rha_haramein64.png)
 
 Run `python rha_haramein64.py` to generate.
+
+### Vortex Math 3-6-9 Toy Model
+Inspired by Marko Rodin/Tesla: Modular doubling pattern on golden-ratio hyperbolic layers—3-6-9 as energy vortex.
+
+![Vortex Math](rha_vortex_math.png)
+
+Run `python rha_vortex_math.py`
+
  - Core Features
  - 37D Hyperbolic Honeycomb Lattice: Grown via golden-angle Möbius addition for exponential hierarchical capacity without boundary distortion.
  - Dual Counter-Rotating Golden Spirals + Honeycomb Base: Optimal natural packing with atomic-scale resolution.
