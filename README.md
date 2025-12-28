@@ -12,6 +12,13 @@ Applies Φ-decaying perturbations in higher dimensions for natural hierarchical 
 Result: A complete, self-organized lattice emerges entirely from the binary input — no predefined geometry beyond the golden-angle growth rule.
 Binary packets act as compressed blueprints for custom hierarchical structures, enabling minimal-seed generative computing.
 
+### Sun-Centric Planetary System Toy Model
+Heliocentric orbits with golden-ratio scaling in hyperbolic space—speculative visualization of Fibonacci-like resonances in the Solar System.
+
+![Planetary System](rha_planetary_system.png)
+
+Run `python rha_planetary_system.py`
+
 ### Navier-Stokes Toy Model
 Speculative visualization: Golden-ratio + hyperbolic geometry regularizes flow—bounded enstrophy suggests no finite-time blow-up.
 
