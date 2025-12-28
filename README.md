@@ -12,6 +12,13 @@ Applies Φ-decaying perturbations in higher dimensions for natural hierarchical 
 Result: A complete, self-organized lattice emerges entirely from the binary input — no predefined geometry beyond the golden-angle growth rule.
 Binary packets act as compressed blueprints for custom hierarchical structures, enabling minimal-seed generative computing.
 
+### Navier-Stokes Toy Model
+Speculative visualization: Golden-ratio + hyperbolic geometry regularizes flow—bounded enstrophy suggests no finite-time blow-up.
+
+![NS Toy](rha_navier_stokes_toy.png)
+
+Run `python rha_navier_stokes_toy.py`
+
 ### Spin Foam Toy Model
 Quantum spacetime as evolving spin networks: Radial hyperbolic graph with golden-ratio recursion mimics foamy Planck-scale geometry.
 
