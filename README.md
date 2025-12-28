@@ -1,4 +1,20 @@
 ### HoneycombPhiNet – Hyperbolic Φ Lattice & Minimal Universe Generator
+
+A living simulation of consciousness, enlightenment, and the universe — built in hyperbolic space.
+
+From golden-ratio lattices to kundalini rising, ego-dissolution, quantum eraser, dreamstates, and full sensory embodiment.
+
+This is an open invitation to explore the nature of reality together.
+
+## How to Contribute
+- Fork & experiment — add new modes in /experiments
+- Improve core geometry/visualization
+- Suggest features or report experiences
+
+Issues welcome. Pull requests celebrated.
+
+The field is infinite. Let's map it.
+
 A Python prototype for hierarchical computing in hyperbolic space, featuring a 37-dimensional golden-angle honeycomb lattice and the ability to bootstrap entire minimal computing universes directly from binary strings.
 Inspired by natural optimal packing (phyllotaxis, quasicrystals, sunflowers, pinecones), hyperbolic geometry, Fibonacci resonance, and emergent complexity from simple rules.
 What's New in This Version
