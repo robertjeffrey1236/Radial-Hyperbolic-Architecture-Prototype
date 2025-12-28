@@ -12,6 +12,13 @@ Applies Φ-decaying perturbations in higher dimensions for natural hierarchical 
 Result: A complete, self-organized lattice emerges entirely from the binary input — no predefined geometry beyond the golden-angle growth rule.
 Binary packets act as compressed blueprints for custom hierarchical structures, enabling minimal-seed generative computing.
 
+### Black Hole Event Horizon Toy Model
+Golden-ratio recursion in hyperbolic space creates natural horizon: exponential crowding at boundary mimics inescapable light-trapping.
+
+![Black Hole Horizon](rha_black_hole_horizon.png)
+
+Run `python rha_black_hole_horizon.py`
+
 ### Spacetime Curvature & Gravity Toy Model
 Unified view: Gravity emerges from intrinsic hyperbolic curvature—central mass warps geodesics, orbits bend naturally.
 
