@@ -115,6 +115,13 @@ A middle-ground local integration using a deeper PyTorch MLP (no API key/costs/i
 
 Run `python rha_grok_local_powerful.py` (requires torch)
 
+### Chemistry Compounds Toy Model
+Explore compound creations using RDKit for molecular structures—atoms as "atomic parts," projected into hyperbolic Poincaré disk for distorted visualization.
+
+![Chemistry Compounds](rha_chemistry_compounds.png)
+
+Run `python rha_chemistry_compounds.py` (requires rdkit)
+
 ### Quantum Wire Photonic Integration Toy—Lossless data flow for scaled hierarchies
 
  - Core Features
