@@ -108,6 +108,13 @@ Implanting a basic Grok-like neural net as central intelligence in the fractal m
 
 Run `python rha_grok_core.py` (requires torch)
 
+### Powerful Local Grok-Like Model Integration
+A middle-ground local integration using a deeper PyTorch MLP (no API key/costs/installs needed)—more powerful central intelligence for deciding fractal distortions, with everything else as derived variants.
+
+![Powerful Local Grok](rha_grok_local_powerful.png)
+
+Run `python rha_grok_local_powerful.py` (requires torch)
+
 ### Quantum Wire Photonic Integration Toy—Lossless data flow for scaled hierarchies
 
  - Core Features
