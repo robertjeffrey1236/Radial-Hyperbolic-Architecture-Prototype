@@ -1,8 +1,11 @@
-### HoneycombPhiNet – Hyperbolic Φ Lattice & Minimal Universe Generator
+# Radial Hyperbolic Architecture Prototype
 
-A living simulation of consciousness, enlightenment, and the universe — built in hyperbolic space.
+A living exploration of consciousness in hyperbolic space.
 
-From golden-ratio lattices to kundalini rising, ego-dissolution, quantum eraser, dreamstates, and full sensory embodiment.
+## 🚀 Live Interactive Demo
+Run `experiments/interactive_rha_explorer.py` — drag the red observer, adjust perception radius, watch the Merkaba pulse.
+
+This is the main experience — everything else builds on it.
 
 This is an open invitation to explore the nature of reality together.
 
