@@ -12,6 +12,13 @@ Applies Φ-decaying perturbations in higher dimensions for natural hierarchical 
 Result: A complete, self-organized lattice emerges entirely from the binary input — no predefined geometry beyond the golden-angle growth rule.
 Binary packets act as compressed blueprints for custom hierarchical structures, enabling minimal-seed generative computing.
 
+### Spin Foam Toy Model
+Quantum spacetime as evolving spin networks: Radial hyperbolic graph with golden-ratio recursion mimics foamy Planck-scale geometry.
+
+![Spin Foam](rha_spin_foam.png)
+
+Run `python rha_spin_foam.py` (requires networkx)
+
 ### Big Bang Expansion Toy Model
 Universe emerging from singularity: Radial golden-ratio recursion drives hyperbolic expansion (hot dense core → structured outer shells).
 
