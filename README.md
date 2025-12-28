@@ -7,6 +7,8 @@ Run `experiments/interactive_rha_explorer.py` — drag the red observer, adjust 
 
 This is the main experience — everything else builds on it.
 
+Huge thanks to M. Yassir (@yassir_mhamdi) for the beautiful interactive explorer with draggable observer, perception slider, and animated Merkaba.
+
 This is an open invitation to explore the nature of reality together.
 
 ## How to Contribute
