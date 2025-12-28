@@ -12,6 +12,13 @@ Applies Φ-decaying perturbations in higher dimensions for natural hierarchical 
 Result: A complete, self-organized lattice emerges entirely from the binary input — no predefined geometry beyond the golden-angle growth rule.
 Binary packets act as compressed blueprints for custom hierarchical structures, enabling minimal-seed generative computing.
 
+### Big Bang Expansion Toy Model
+Universe emerging from singularity: Radial golden-ratio recursion drives hyperbolic expansion (hot dense core → structured outer shells).
+
+![Big Bang](rha_big_bang.png)
+
+Run `python rha_big_bang.py`
+
 ### Black Hole Event Horizon Toy Model
 Golden-ratio recursion in hyperbolic space creates natural horizon: exponential crowding at boundary mimics inescapable light-trapping.
 
