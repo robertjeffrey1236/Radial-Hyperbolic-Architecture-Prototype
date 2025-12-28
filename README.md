@@ -12,6 +12,13 @@ Applies Φ-decaying perturbations in higher dimensions for natural hierarchical 
 Result: A complete, self-organized lattice emerges entirely from the binary input — no predefined geometry beyond the golden-angle growth rule.
 Binary packets act as compressed blueprints for custom hierarchical structures, enabling minimal-seed generative computing.
 
+### Speed of Light Toy Model
+Why is c finite and universal? In hyperbolic substrate, propagation speed asymptotically approaches a boundary limit—no tuning required.
+
+![Speed of Light Limit](rha_speed_of_light.png)
+
+Run `python rha_speed_of_light.py`
+
 ### ER=EPR Conjecture Toy Model
 Quantum entanglement (EPR) as geometric wormholes (ER) in hyperbolic space—entangled node pairs connected by curved geodesics/shortcuts.
 
