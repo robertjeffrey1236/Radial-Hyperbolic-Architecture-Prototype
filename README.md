@@ -12,6 +12,13 @@ Applies Φ-decaying perturbations in higher dimensions for natural hierarchical 
 Result: A complete, self-organized lattice emerges entirely from the binary input — no predefined geometry beyond the golden-angle growth rule.
 Binary packets act as compressed blueprints for custom hierarchical structures, enabling minimal-seed generative computing.
 
+### Spacetime Curvature & Gravity Toy Model
+Unified view: Gravity emerges from intrinsic hyperbolic curvature—central mass warps geodesics, orbits bend naturally.
+
+![Spacetime Gravity](rha_spacetime_gravity.png)
+
+Run `python rha_spacetime_gravity.py`
+
 ### Speed of Light Toy Model
 Why is c finite and universal? In hyperbolic substrate, propagation speed asymptotically approaches a boundary limit—no tuning required.
 
