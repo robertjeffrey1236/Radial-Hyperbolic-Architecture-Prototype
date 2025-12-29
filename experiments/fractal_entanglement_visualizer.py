@@ -1,3 +1,4 @@
+# this was made possible with @Sonyak789 Sedeloop development 
 # experiments/fractal_entanglement_visualizer.py
 # A dedicated visualizer for the Radial-Hyperbolic-Architecture (RHA) prototype
 # Integrates fractal entanglement mapping inspired by your friend's sedeloop visuals:
