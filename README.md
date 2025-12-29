@@ -35,5 +35,14 @@ Open issues with ideas, bugs, or wonderings
 See CONTRIBUTING.md for guidelines.
 The field is infinite.
 Let’s map it.
-License
-Apache-2.0 — experiment freely.
+
+**Open Source – MIT Licensed**  
+© 2025 Robert Jeffrey. All rights reserved under the MIT License.
+
+This project is released under the **MIT License** — you are free to use, modify, distribute, and build upon it (even commercially), as long as you include the original copyright and license notice.
+
+**I want you to play with it. Break it. Improve it. Create wild new experiments.**  
+The more people explore this space, the faster we map the infinite field together.
+
+My goal is not to own the idea — it's to be recognized as the one who opened the door, and to see what humanity builds on the other side.
+
