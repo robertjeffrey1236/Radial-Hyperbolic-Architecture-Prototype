@@ -27,6 +27,32 @@ cd Radial-Hyperbolic-Architecture-Prototype
 pip install torch matplotlib networkx numpy scipy geoopt  # main dependencies
 python experiments/interactive_rha_explorer.py   # start here!
 Most experiments run on CPU — no GPU needed.
+
+## Early Access & Interactive Demos
+
+Standalone versions of the prototype are now available for immediate exploration:
+
+### Windows Users
+- Download the pre-built executable (no installation required):  
+  [RHA Interactive Explorer .exe](https://drive.google.com/file/d/1xA_Czh4QQeG4_VsUAQPZKtf9WH2rncUy/view?usp=drivesdk)  
+- Double-click to launch the full interactive Poincaré disk explorer:
+  - Draggable observer with perception-radius lazy loading
+  - Toggle between classic dual golden spirals and God Code Genesis lattice mode
+  - Animated counter-rotating Merkaba overlay
+
+### Mac / Linux / All Python Users
+Two pure-Python demo scripts have been added to the repository:
+
+- `god_code_rha_explorer_demo.py` – simplified interactive version  
+  Run with: `python3 god_code_rha_explorer_demo.py`
+
+- `Radial-Hyperbolic-Architecture-Prototype.py` – core generator with static visualization  
+  Run with: `python3 Radial-Hyperbolic-Architecture-Prototype.py`
+
+Required libraries (one-time install):
+```bash
+pip install numpy matplotlib torch geoopt
+
 ## Contributing
 This is an open invitation to explore reality together.
 Add new experiments in /experiments/
