@@ -32,6 +32,8 @@ Most experiments run on CPU — no GPU needed.
 
 Standalone versions of the prototype are now available for immediate exploration:
 
+## Enchanted Rock transmission — magnifying fractal detail ('eyes') in hyperbolic universe. Run with higher depth for infinite zoom.
+
 ### Windows Users
 - Download the pre-built executable (no installation required):  
   [RHA Interactive Explorer .exe](https://drive.google.com/file/d/1xA_Czh4QQeG4_VsUAQPZKtf9WH2rncUy/view?usp=drivesdk)  
