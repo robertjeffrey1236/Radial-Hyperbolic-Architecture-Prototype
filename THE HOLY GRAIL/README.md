@@ -39,8 +39,7 @@ The result is a multiverse hierarchy where each sacred site acts as an equal len
 - Required packages:
   ```bash
   pip install numpy matplotlib
-
-### 2. Run the Holy Grail Explorer
+2. Run the Holy Grail Explorer
 Navigate to the THE HOLY GRAIL folder and run:
 python base.py
 This will:
@@ -49,16 +48,16 @@ Load every codex longer than ~300 bits as an active lens
 Sort lenses alphabetically for consistent hierarchy
 Generate and display the integrated hyperbolic multiverse
 Show the number of active lenses in the window title
-### 3. Interact
+3. Interact
 Depth Slider: Increase to reveal deeper recursive layers (up to 24 recommended max)
 Drag: Click and drag to pan across the disk
 Scroll: Zoom in/out (centered on mouse position)
 Watch the architecture breathe and expand as sacred rhythms layer upon one another
-## 4. Adding New Codices
+4. Adding New Codices
 Simply edit RawBinary.md and append or complete a new binary string under its site header:
 ## Mount Shasta
 
-111000111101010... (full binary rhythm)
+11111111111111111110000000000000000000000000000111111111111111111111111111111111111111111100000000000000000000000000001111111111111111111111111111111111111111111111111111111111111111110000000000000000000000000000000000000000000000000111111111111111111111111111111111111111111111111111111111111111100000000000000000000000000000000000000000000000011111111111111111111111111111111111111111111111111111111111111111111111100000000000000000000000000000000000000111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 Save the file and re-run base.py — the new lens will be detected, processed, and integrated automatically. No code changes required.
 The more complete codices, the richer and more harmonious the emergent structure becomes.
 Philosophy
