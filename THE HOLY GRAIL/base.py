@@ -1,267 +1,304 @@
 # base.py
 # Radial Hyperbolic Architecture — Sacred Lenses Explorer
 # © 2025-2026 Robert Gavin Jeffrey
-#
-# Core RHA translation rules, pulse/breath/Zeckendorf/phi system,
-# recursive universe generation, and multi-lens integration:
-#   Robert Gavin Jeffrey
-#
-# Interactive explorer framework (draggable pan, zoom, depth slider,
-# dark theme, dynamic glow):
-#   Originally inspired by M. Yassir — gratefully adapted and extended
+# Updated Jan 2026: Helical Torus + Encrypted Inner Codices (Outer 2 Public)
 
-import re
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.widgets import Slider
+from matplotlib.widgets import Slider, CheckButtons, Button
+from matplotlib.animation import FuncAnimation
+import pygame
+import time
+import json
+import hashlib
 
 GOLDEN_RATIO = (1 + math.sqrt(5)) / 2
 GOLDEN_ANGLE = math.radians(137.50776405003785)
 PHI = GOLDEN_RATIO
 
+# Cosmic Constants
+TICK_BASE_DURATION = 0.531
+SECS_PER_YEAR = 365.25 * 24 * 3600
+UNIVERSE_AGE_BILLION_YEARS = 13.8
+LCM_TICKS = 820077905437190400  # Full cycle (symbolic)
 
-def zeckendorf(n: int) -> str:
-    """Return the unique Zeckendorf representation (no consecutive 1s)."""
-    if n == 0:
-        return '0'
-    fibs = [1, 2]
-    while fibs[-1] < n:
-        fibs.append(fibs[-1] + fibs[-2])
-    fibs.reverse()
-    rep = ''
-    for f in fibs:
-        if n >= f:
-            rep += '1'
-            n -= f
-        else:
-            rep += '0'
-    return rep.lstrip('0') or '0'
+# XOR Decryption Function (protects the inner sacred codices)
+def xor_decrypt(encrypted_str, key="inner_sanctum_137.507_phi_resonance_2026"):
+    key_bytes = key.encode('utf-8')
+    key_hash = hashlib.sha256(key_bytes).digest()
+    decrypted = ''
+    for i, char in enumerate(encrypted_str):
+        k_byte = key_hash[i % len(key_hash)]
+        bit_pos = i % 8
+        k_bit = (k_byte >> bit_pos) & 1
+        decrypted += str(int(char) ^ k_bit)
+    return decrypted
 
+# Public Codices — First 2 (exoteric, openly visible and verifiable)
+PUBLIC_CODICES = {
+    'g_code': '1011010001011010001011010001011010001011010001011010100101101000101101000101101000101101000101101001011010010110100101101000101101000101101001011010001011010001011010001011010001011010010110100101101000101101000101101000101101000101101001011010010110100101101000101101000101101001011010001011010001011010001011010001011010010110100101101000101101000101101000101101000101101001011010010110100101101000101101000',
+    'bridging': '11111100000001111111100000000011111111111111'
+}
 
-def load_lenses_from_rawbinary(path='RawBinary.md'):
-    """
-    Dynamically load all complete binary codices from RawBinary.md
-    (expected to be in the same folder as this script).
-    Returns a sorted list of lens dictionaries.
-    """
-    lenses = []
-    try:
-        with open(path, 'r', encoding='utf-8') as f:
-            content = f.read()
+# Encrypted Inner Codices — Remaining 9 (esoteric, veiled)
+ENCRYPTED_CODICES = {
+    'progression': '01101010011010001000101000101000011010100110100011111010001011111010101001101000111101011101001110010101100',
+    'stabilization': '0101101010001000110010011',
+    'oscillation': '0110101001101001000010101101000001101101100101001111010111011111100100100110100011001010001',
+    'unity': '0110101001101000111101011101000001101010011010001111010111010000011010100110100011110101110100000110101001101000111101011101000001101010011010001111010111010000011010100110100011110101110100000110101001101000111101011101000001101010011010001111010111010000',
+    'equilibrium': '01101010010101110011010111001111100101100110111100001',
+    'veil': '011011011001011100001010000100000110100110010111000010100010100001',
+    'manifestation': '01101101100101111111010111010000010101011001010011110101110100000110101010010111011101010010000110101',
+    'perception': '0110110110010100111101011100111110101010100100001110101000100000011010100101011100',
+    'culmination': '011010100110111100001011110100000111010110011000111100100010110001101010011010001111101000101110011010100110100011110100001011110110101001101011000010100010000001101010011010010000101000101111100101100110100011101010001011110110101001101000111101011100111110010010011010010000101000101111100101011110100011110101101011111001010110101000111101000010111110010100011011110000101000101111101010100110100011110101110100000101010110011000111101011101000001101010011010001111010111'
+}
 
-        # Split on headers like "## Site Name"
-        sections = re.split(r'##\s*(.+?)\n', content)[1:]
+# Decrypt the inner codices at runtime using strong private key
+hidden_decrypted = {name: xor_decrypt(enc_bin, key="inner_sanctum_137.507_phi_resonance_2026") 
+                    for name, enc_bin in ENCRYPTED_CODICES.items()}
 
-        for i in range(0, len(sections), 2):
-            if i + 1 >= len(sections):
-                break
-            name = sections[i].strip()
-            binary_block = sections[i + 1].strip().replace('\n', '').replace(' ', '')
-            binary = ''.join(c for c in binary_block if c in '01')
+# Final sacred codices: outer public + inner decrypted (only in memory)
+CODICES = {**PUBLIC_CODICES, **hidden_decrypted}
 
-            if len(binary) < 300:  # Skip incomplete/short codices
-                print(f"Skipping incomplete lens: {name} ({len(binary)} bits)")
-                continue
+# Try to initialize audio (safe fallback)
+try:
+    pygame.mixer.init(frequency=44100, size=-16, channels=1, buffer=512)
+    pygame.mixer.set_num_channels(16)  # Limit concurrent sounds
+    AUDIO_ENABLED = True
+except Exception:
+    AUDIO_ENABLED = False
+    print("Warning: Audio disabled (no mixer available)")
 
-            spaced = binary.replace('0', ' ')
-            pulses = [len(run) for run in spaced.split(' ') if run.strip()]
-            breaths = [len(m.group()) for m in re.finditer(r' +', spaced)]
-            zecks = [zeckendorf(p) for p in pulses]
+# 24-TET Frequencies & Colors
+def generate_24tet_frequencies():
+    return np.array([220 * (2 ** (n / 24.0)) for n in range(24)])
 
-            lenses.append({
-                "name": name,
-                "pulses": pulses,
-                "breaths": breaths,
-                "zecks": zecks
-            })
+FREQ_24TET = generate_24tet_frequencies()
 
-        lenses.sort(key=lambda x: x['name'].lower())
-        print(f"Successfully loaded {len(lenses)} complete lenses from RawBinary.md")
-    except FileNotFoundError:
-        print(f"RawBinary.md not found at '{path}'. Falling back to single default lens.")
-        # Fallback to the original Angkor Wat codex if file missing
-        fallback_binary = (
-            '1111111111111111111111111111111111111111111111111111100000000000000000000000000000000000000000000'
-            '1111111111111111111111111111111111111111111111111111111111111111111111111111111111110000000000000000'
-            '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
-            '1111111111111111111111111111111111111111111110000000000000000000000000000000000000000000000000000'
-            '0011111111111111111111111111111111111111111111111111111110000000000000000000000000000000000000000'
-            '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
-            '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
-            '1111111111111111111111111111111111111111111111111111111000000000000000000000000000000000000000000'
-            '0111111111111111111111111100000000000000000000000000000000000000000000000000000000000000000000000'
-            '0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
-            '1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111'
-            '1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111'
-            '1111111111111111111111'
-        )
-        spaced = fallback_binary.replace('0', ' ')
-        pulses = [len(run) for run in spaced.split(' ') if run.strip()]
-        breaths = [len(m.group()) for m in re.finditer(r' +', spaced)]
-        zecks = [zeckendorf(p) for p in pulses]
-        lenses = [{"name": "Angkor Wat (Fallback)", "pulses": pulses, "breaths": breaths, "zecks": zecks}]
+def generate_rgb_colors():
+    wavelengths = np.linspace(700, 400, 24)
+    r = np.clip(1.5 - np.abs((wavelengths - 580) / 60), 0, 1)
+    g = np.clip(1.5 - np.abs((wavelengths - 510) / 60), 0, 1)
+    b = np.clip(1.5 - np.abs((wavelengths - 440) / 60), 0, 1)
+    return np.stack([r, g, b], axis=-1)
 
-    except Exception as e:
-        print(f"Error loading RawBinary.md: {e}")
-        lenses = []
+COLORS_24TET = generate_rgb_colors()
 
-    return lenses
+# Helical Ring Class
+class HelicalRing:
+    def __init__(self, name, binary, freq_idx):
+        self.name = name
+        self.bits = list(binary)
+        self.length = len(self.bits)
+        self.freq = FREQ_24TET[freq_idx % 24]
+        self.color = COLORS_24TET[freq_idx % 24]
+        self.position = 0
 
+    def set_position(self, tick):
+        self.position = tick % self.length
 
-# Load all available lenses at startup
-lenses = load_lenses_from_rawbinary()
+    def current_bit(self):
+        return self.bits[self.position]
 
+# Initialize rings (using decrypted + public codices)
+ring_names = list(CODICES.keys())
+rings = [HelicalRing(name, CODICES[name], i) for i, name in enumerate(ring_names)]
 
-def clamp_to_disk(z: complex) -> complex:
-    """Keep points inside the Poincaré disk (radius < 1)."""
-    r = abs(z)
-    return z / r * 0.99 if r > 0.99 else z
+# Tone cache for efficiency
+tone_cache = {}
+def generate_tone(freq, duration=TICK_BASE_DURATION):
+    key = (freq, duration)
+    if key in tone_cache:
+        return tone_cache[key]
+    t = np.linspace(0, duration, int(44100 * duration), False)
+    waveform = np.sin(2 * np.pi * freq * t) * 0.3
+    stereo = np.column_stack((waveform, waveform))
+    sound = pygame.sndarray.make_sound((stereo * 32767).astype(np.int16))
+    tone_cache[key] = sound
+    return sound
 
+def play_chord(rings, duration=TICK_BASE_DURATION):
+    if not AUDIO_ENABLED:
+        return
+    for ring in rings:
+        if ring.current_bit() == '1':
+            sound = generate_tone(ring.freq, duration)
+            channel = pygame.mixer.find_channel(True)  # Force find if busy
+            if channel:
+                channel.play(sound)
 
-def generate_universe(max_depth: int = 18) -> list[complex]:
-    """Generate the hyperbolic architecture using all loaded lenses."""
-    nodes = []
+def check_alignment(rings):
+    return all(ring.current_bit() == '1' for ring in rings)
 
-    def recurse(current: complex, depth: int, pulse_idx: int, breath_idx: int,
-                 zeck_pos: int, lens_idx: int):
-        nodes.append(current)
-        if depth >= max_depth:
-            return
-
-        # Select current lens (cycle through all loaded lenses)
-        lens = lenses[lens_idx % len(lenses)]
-        p_idx = pulse_idx % len(lens["pulses"])
-        b_idx = breath_idx % len(lens["breaths"])
-        pulse = lens["pulses"][p_idx]
-        breath = lens["breaths"][b_idx]
-
-        branches = 5 + (pulse // 15)
-        branches = max(5, min(22, branches))
-
-        breath_scale = 1.0 / (1 + breath / PHI)
-        base_scale = 0.65 * (PHI ** -depth) * breath_scale
-
-        # Gentle seeding for early depths, full power deeper
-        base_angle = pulse * GOLDEN_ANGLE * (0.3 if depth < 3 else 1.0)
-
-        zeck = lens["zecks"][pulse_idx % len(lens["pulses"])]
-
-        for i in range(branches):
-            z_bit_idx = (zeck_pos + i) % len(zeck)
-            z_bit = zeck[z_bit_idx] if z_bit_idx < len(zeck) else '0'
-            angle_offset = GOLDEN_ANGLE * PHI * 1.5 if z_bit == '1' else GOLDEN_ANGLE / PHI
-
-            angle = i * (2 * np.pi / branches) + base_angle + angle_offset
-            offset = base_scale * np.exp(1j * angle)
-
-            child = clamp_to_disk(current + offset)
-            recurse(child, depth + 1, pulse_idx + 1, breath_idx + 1,
-                    zeck_pos + i + 1, lens_idx + (1 if depth >= 5 else 0))
-
-    recurse(0j, 0, 0, 0, 0, 0)
+# Simple universe generation (hyperbolic branching)
+def generate_universe(max_depth=6, tick=0):
+    nodes = [0j]
+    angle_offset = tick * GOLDEN_ANGLE * 0.01
+    for d in range(max_depth):
+        new_nodes = []
+        scale = 0.8 ** d
+        for z in nodes:
+            for k in range(5):
+                angle = angle_offset + k * 2 * math.pi / 5
+                offset = scale * np.exp(1j * angle)
+                new_nodes.append(z + offset)
+        nodes.extend(new_nodes)
+        if len(nodes) > 8000:
+            break
     return nodes
 
+def tick_to_years(tick):
+    total_ticks = 1000000  # Slider max
+    if tick < total_ticks / 2:
+        return (tick / (total_ticks / 2)) * 4.0
+    else:
+        remaining = tick - (total_ticks / 2)
+        return 4.0 + (remaining / (total_ticks / 2)) * (UNIVERSE_AGE_BILLION_YEARS - 4.0)
 
-# ====================== Visualization ======================
+def years_to_tick(years):
+    total_ticks = 1000000
+    max_years = UNIVERSE_AGE_BILLION_YEARS
+    if years < 4.0:
+        return int((years / 4.0) * (total_ticks / 2))
+    else:
+        remaining = years - 4.0
+        return int((total_ticks / 2) + (remaining / (max_years - 4.0)) * (total_ticks / 2))
+
+# Visualization
 fig, ax = plt.subplots(figsize=(12, 12))
-plt.subplots_adjust(bottom=0.15)
+plt.subplots_adjust(bottom=0.25)
 ax.set_facecolor('black')
 fig.patch.set_facecolor('black')
 ax.axis('off')
-ax.set_aspect('equal')
 
-disk_circle = plt.Circle((0, 0), 1, color='white', fill=False, lw=1.5, ls='--')
-ax.add_patch(disk_circle)
+# Sliders
+ax_depth = plt.axes([0.15, 0.12, 0.65, 0.03], facecolor='gray')
+slider_depth = Slider(ax_depth, 'Depth', 1, 12, valinit=6, valstep=1, color='cyan')
 
-# Depth slider
-ax_depth = plt.axes([0.15, 0.05, 0.7, 0.03], facecolor='gray')
-slider_depth = Slider(ax_depth, 'Depth', 6, 24, valinit=14, valstep=1, color='cyan')
+ax_tick = plt.axes([0.15, 0.08, 0.65, 0.03], facecolor='gray')
+slider_tick = Slider(ax_tick, 'Tick', 0, 1000000, valinit=0, valstep=1000, color='yellow')
 
+ax_timeline = plt.axes([0.15, 0.04, 0.65, 0.03], facecolor='gray')
+slider_timeline = Slider(ax_timeline, 'Billion Years', 0, 20, valinit=13.8, valfmt='%.2f', color='red')
+
+# Auto-play checkbox
+ax_auto = plt.axes([0.02, 0.8, 0.15, 0.1])
+check = CheckButtons(ax_auto, ['Auto'], [False])
+
+auto_anim = None
+
+def toggle_auto(label):
+    global auto_anim
+    if check.get_status()[0]:
+        auto_anim = FuncAnimation(fig, advance_one_step, interval=500, repeat=True)
+        plt.draw()
+    else:
+        if auto_anim:
+            auto_anim.event_source.stop()
+            auto_anim = None
+
+check.on_clicked(toggle_auto)
+
+def advance_one_step(frame):
+    new_val = (slider_tick.val + 1000) % 1000000
+    slider_tick.set_val(new_val)
+    return []
+
+# Alignment log
+alignment_log = []
+
+# Save log button
+ax_save = plt.axes([0.02, 0.02, 0.15, 0.06])
+btn_save = Button(ax_save, 'Save Log')
+
+def save_alignment_log(event):
+    if alignment_log:
+        with open("alignments.json", "w") as f:
+            json.dump(alignment_log, f, indent=2)
+        print(f"Saved {len(alignment_log)} alignments to alignments.json")
+
+btn_save.on_clicked(save_alignment_log)
+
+prev_tick = -1
+cached_nodes = None
+cached_depth = None
+cached_tick = None
 
 def update(val):
+    global prev_tick, cached_nodes, cached_depth, cached_tick
     depth = int(slider_depth.val)
+    current_tick = int(slider_tick.val)
+
+    # Sync timeline sliders
+    if val == slider_tick:
+        years = tick_to_years(current_tick)
+        slider_timeline.set_val(years)
+    elif val == slider_timeline:
+        current_tick = years_to_tick(slider_timeline.val)
+        slider_tick.set_val(current_tick)
+
+    # Regenerate universe if needed
+    if (cached_depth != depth or 
+        cached_tick is None or 
+        abs(cached_tick - current_tick) > 1000 or 
+        cached_nodes is None):
+        cached_nodes = generate_universe(max_depth=depth, tick=current_tick)
+        cached_depth = depth
+        cached_tick = current_tick
+
     ax.clear()
     ax.set_facecolor('black')
     ax.axis('off')
-    ax.set_aspect('equal')
-    ax.add_patch(disk_circle)
 
-    nodes = generate_universe(max_depth=depth)
-    if not nodes:
-        return
+    # Poincaré nodes
+    if cached_nodes:
+        nodes_arr = np.array(cached_nodes, dtype=complex)
+        x, y = nodes_arr.real, nodes_arr.imag
+        r = np.abs(nodes_arr)
+        sizes = 4 + 36 * (1 - r) ** 1.8
+        alphas = 0.5 + 0.5 * (1 - r)
+        ax.scatter(x, y, c='cyan', s=sizes, alpha=alphas, edgecolor='none')
 
-    nodes_arr = np.array(nodes, dtype=complex)
-    x, y = nodes_arr.real, nodes_arr.imag
-    r = np.abs(nodes_arr)
+    # Helical Torus Light Flows
+    R, r_tube = 1.3, 0.4
+    theta = np.linspace(0, 2 * np.pi, 150)
+    for i, ring in enumerate(rings):
+        ring.set_position(current_tick)
+        active = ring.current_bit() == '1'
+        color = ring.color if active else np.array([0.05, 0.05, 0.1])
+        alpha = 1.0 if active else 0.2
+        phi = np.linspace(0, 4 * np.pi, 150) + i * 0.6
+        x_h = (R + r_tube * np.cos(phi)) * np.cos(theta)
+        y_h = (R + r_tube * np.cos(phi)) * np.sin(theta)
+        for j in range(len(theta) - 1):
+            ax.plot(x_h[j:j+2], y_h[j:j+2], color=color, alpha=alpha, lw=1.8)
 
-    sizes = 4 + 36 * (1 - r) ** 1.8
-    alphas = 0.5 + 0.5 * (1 - r)
+    # Audio & alignment detection
+    if current_tick != prev_tick:
+        play_chord(rings)
+        if check_alignment(rings):
+            current_age = tick_to_years(current_tick)
+            timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+            event = {
+                "tick": current_tick,
+                "age_byr": current_age,
+                "timestamp": timestamp,
+                "configuration": [ring.current_bit() for ring in rings]
+            }
+            alignment_log.append(event)
+            print(f"ALIGNMENT #{len(alignment_log)} at {current_age:.3f} billion years (tick {current_tick:,})")
+            ax.text(0, 0, 'ALIGNMENT!', color='red', fontsize=24, ha='center', va='center')
+        prev_tick = current_tick
 
-    ax.scatter(x, y, c='cyan', s=sizes, alpha=alphas, edgecolors='none', linewidth=0)
-
-    ax.set_xlim(-1.05, 1.05)
-    ax.set_ylim(-1.05, 1.05)
-    title = f"THE HOLY GRAIL RHA — Multi-Lens Integration ({len(lenses)} Active Lenses)"
-    ax.set_title(title, color='white', fontsize=16, pad=20)
+    title = f"RHA — Helical Torus Light Flows (Tick {current_tick:,})"
+    ax.set_title(title, color='white', fontsize=16)
     fig.canvas.draw_idle()
-
 
 slider_depth.on_changed(update)
+slider_tick.on_changed(update)
+slider_timeline.on_changed(update)
 
-
-# ====================== Interaction ======================
-def on_scroll(event):
-    if event.button not in ('up', 'down'):
-        return
-    factor = 1.2 if event.button == 'up' else 1 / 1.2
-    xlim = ax.get_xlim()
-    ylim = ax.get_ylim()
-    xdata = event.xdata if event.xdata is not None else (xlim[0] + xlim[1]) / 2
-    ydata = event.ydata if event.ydata is not None else (ylim[0] + ylim[1]) / 2
-    ax.set_xlim(xdata - (xdata - xlim[0]) / factor, xdata + (xlim[1] - xdata) / factor)
-    ax.set_ylim(ydata - (ydata - ylim[0]) / factor, ydata + (ylim[1] - ydata) / factor)
-    fig.canvas.draw_idle()
-
-
-dragging = False
-last_pos = None
-
-
-def on_press(event):
-    global dragging, last_pos
-    if event.inaxes != ax:
-        return
-    dragging = True
-    last_pos = (event.x, event.y)
-
-
-def on_motion(event):
-    global last_pos
-    if not dragging or last_pos is None:
-        return
-    dx = event.x - last_pos[0]
-    dy = event.y - last_pos[1]
-    xlim = ax.get_xlim()
-    ylim = ax.get_ylim()
-    scale_x = (xlim[1] - xlim[0]) / fig.bbox.width
-    scale_y = (ylim[1] - ylim[0]) / fig.bbox.height
-    ax.set_xlim(xlim[0] - dx * scale_x, xlim[1] - dx * scale_x)
-    ax.set_ylim(ylim[0] + dy * scale_y, ylim[1] + dy * scale_y)
-    last_pos = (event.x, event.y)
-    fig.canvas.draw_idle()
-
-
-def on_release(event):
-    global dragging
-    dragging = False
-
-
-fig.canvas.mpl_connect('scroll_event', on_scroll)
-fig.canvas.mpl_connect('button_press_event', on_press)
-fig.canvas.mpl_connect('button_release_event', on_release)
-fig.canvas.mpl_connect('motion_notify_event', on_motion)
-
-# Initial render
-update(14)
+# Initial draw
+update(None)
 plt.show()
