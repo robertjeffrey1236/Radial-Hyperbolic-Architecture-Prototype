@@ -2,12 +2,14 @@
 # Radial Hyperbolic Architecture — Sacred Lenses Explorer
 # © 2025-2026 Robert Gavin Jeffrey
 # Updated Jan 2026: Helical Torus + Encrypted Inner Codices (Outer 2 Public)
+# Enhanced: Spiraling Binary Bloom with Connected Lines & 3D Toroid Projection
 
 import math
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider, CheckButtons, Button
 from matplotlib.animation import FuncAnimation
+from mpl_toolkits.mplot3d import Axes3D
 import pygame
 import time
 import json
@@ -54,11 +56,10 @@ ENCRYPTED_CODICES = {
     'culmination': '011010100110111100001011110100000111010110011000111100100010110001101010011010001111101000101110011010100110100011110100001011110110101001101011000010100010000001101010011010010000101000101111100101100110100011101010001011110110101001101000111101011100111110010010011010010000101000101111100101011110100011110101101011111001010110101000111101000010111110010100011011110000101000101111101010100110100011110101110100000101010110011000111101011101000001101010011010001111010111'
 }
 
-# Decrypt the inner codices at runtime using strong private key
-hidden_decrypted = {name: xor_decrypt(enc_bin, key="inner_sanctum_137.507_phi_resonance_2026") 
-                    for name, enc_bin in ENCRYPTED_CODICES.items()}
+# Decrypt the inner codices at runtime
+hidden_decrypted = {name: xor_decrypt(enc_bin) for name, enc_bin in ENCRYPTED_CODICES.items()}
 
-# Final sacred codices: outer public + inner decrypted (only in memory)
+# Final CODICES dict
 CODICES = {**PUBLIC_CODICES, **hidden_decrypted}
 
 # Try to initialize audio (safe fallback)
@@ -66,7 +67,7 @@ try:
     pygame.mixer.init(frequency=44100, size=-16, channels=1, buffer=512)
     pygame.mixer.set_num_channels(16)  # Limit concurrent sounds
     AUDIO_ENABLED = True
-except Exception:
+except:
     AUDIO_ENABLED = False
     print("Warning: Audio disabled (no mixer available)")
 
@@ -85,7 +86,7 @@ def generate_rgb_colors():
 
 COLORS_24TET = generate_rgb_colors()
 
-# Helical Ring Class
+# Helical Ring Class (extended for connected spirals)
 class HelicalRing:
     def __init__(self, name, binary, freq_idx):
         self.name = name
@@ -94,6 +95,7 @@ class HelicalRing:
         self.freq = FREQ_24TET[freq_idx % 24]
         self.color = COLORS_24TET[freq_idx % 24]
         self.position = 0
+        self.points_1, self.points_0 = self.generate_spiral_points()
 
     def set_position(self, tick):
         self.position = tick % self.length
@@ -101,7 +103,21 @@ class HelicalRing:
     def current_bit(self):
         return self.bits[self.position]
 
-# Initialize rings (using decrypted + public codices)
+    def generate_spiral_points(self):
+        points_1 = []
+        points_0 = []
+        for i, bit in enumerate(self.bits):
+            theta = i * GOLDEN_ANGLE
+            r = math.sqrt(i / self.length) * 1.5
+            x = r * math.cos(theta)
+            y = r * math.sin(theta)
+            if bit == '1':
+                points_1.append((x, y))
+            else:
+                points_0.append((x, y))
+        return np.array(points_1), np.array(points_0)
+
+# Initialize rings
 ring_names = list(CODICES.keys())
 rings = [HelicalRing(name, CODICES[name], i) for i, name in enumerate(ring_names)]
 
@@ -124,7 +140,7 @@ def play_chord(rings, duration=TICK_BASE_DURATION):
     for ring in rings:
         if ring.current_bit() == '1':
             sound = generate_tone(ring.freq, duration)
-            channel = pygame.mixer.find_channel(True)  # Force find if busy
+            channel = pygame.mixer.find_channel(True)
             if channel:
                 channel.play(sound)
 
@@ -149,7 +165,7 @@ def generate_universe(max_depth=6, tick=0):
     return nodes
 
 def tick_to_years(tick):
-    total_ticks = 1000000  # Slider max
+    total_ticks = 1000000
     if tick < total_ticks / 2:
         return (tick / (total_ticks / 2)) * 4.0
     else:
@@ -166,11 +182,14 @@ def years_to_tick(years):
         return int((total_ticks / 2) + (remaining / (max_years - 4.0)) * (total_ticks / 2))
 
 # Visualization
-fig, ax = plt.subplots(figsize=(12, 12))
+fig = plt.figure(figsize=(12, 12))
 plt.subplots_adjust(bottom=0.25)
+ax = fig.add_subplot(111, projection='3d')  # Start with 3D ax
 ax.set_facecolor('black')
 fig.patch.set_facecolor('black')
 ax.axis('off')
+
+is_3d = [False]  # Mutable for toggle
 
 # Sliders
 ax_depth = plt.axes([0.15, 0.12, 0.65, 0.03], facecolor='gray')
@@ -182,23 +201,36 @@ slider_tick = Slider(ax_tick, 'Tick', 0, 1000000, valinit=0, valstep=1000, color
 ax_timeline = plt.axes([0.15, 0.04, 0.65, 0.03], facecolor='gray')
 slider_timeline = Slider(ax_timeline, 'Billion Years', 0, 20, valinit=13.8, valfmt='%.2f', color='red')
 
+ax_frame_rate = plt.axes([0.15, 0.16, 0.65, 0.03], facecolor='gray')
+slider_frame_rate = Slider(ax_frame_rate, 'Frame Rate (ms)', 100, 2000, valinit=500, valstep=100, color='magenta')
+
 # Auto-play checkbox
 ax_auto = plt.axes([0.02, 0.8, 0.15, 0.1])
-check = CheckButtons(ax_auto, ['Auto'], [False])
+check_auto = CheckButtons(ax_auto, ['Auto'], [False])
+
+# 3D toggle checkbox
+ax_3d = plt.axes([0.02, 0.7, 0.15, 0.1])
+check_3d = CheckButtons(ax_3d, ['3D Toroid'], [False])
 
 auto_anim = None
 
 def toggle_auto(label):
     global auto_anim
-    if check.get_status()[0]:
-        auto_anim = FuncAnimation(fig, advance_one_step, interval=500, repeat=True)
+    if check_auto.get_status()[0]:
+        auto_anim = FuncAnimation(fig, advance_one_step, interval=int(slider_frame_rate.val), repeat=True)
         plt.draw()
     else:
         if auto_anim:
             auto_anim.event_source.stop()
             auto_anim = None
 
-check.on_clicked(toggle_auto)
+check_auto.on_clicked(toggle_auto)
+
+def toggle_3d(label):
+    is_3d[0] = check_3d.get_status()[0]
+    update(None)
+
+check_3d.on_clicked(toggle_3d)
 
 def advance_one_step(frame):
     new_val = (slider_tick.val + 1000) % 1000000
@@ -226,11 +258,11 @@ cached_depth = None
 cached_tick = None
 
 def update(val):
-    global prev_tick, cached_nodes, cached_depth, cached_tick
+    global prev_tick, cached_nodes, cached_depth, cached_tick, ax
     depth = int(slider_depth.val)
     current_tick = int(slider_tick.val)
 
-    # Sync timeline sliders
+    # Sync timeline
     if val == slider_tick:
         years = tick_to_years(current_tick)
         slider_timeline.set_val(years)
@@ -239,28 +271,33 @@ def update(val):
         slider_tick.set_val(current_tick)
 
     # Regenerate universe if needed
-    if (cached_depth != depth or 
-        cached_tick is None or 
-        abs(cached_tick - current_tick) > 1000 or 
-        cached_nodes is None):
+    if (cached_depth != depth or cached_tick is None or abs(cached_tick - current_tick) > 1000 or cached_nodes is None):
         cached_nodes = generate_universe(max_depth=depth, tick=current_tick)
         cached_depth = depth
         cached_tick = current_tick
 
-    ax.clear()
+    # Clear and reset ax based on 3D toggle
+    plt.cla()
+    if is_3d[0]:
+        ax = fig.add_subplot(111, projection='3d')
+    else:
+        ax = fig.add_subplot(111)
     ax.set_facecolor('black')
     ax.axis('off')
 
-    # Poincaré nodes
+    # Poincaré nodes (2D or 3D projection)
     if cached_nodes:
         nodes_arr = np.array(cached_nodes, dtype=complex)
         x, y = nodes_arr.real, nodes_arr.imag
         r = np.abs(nodes_arr)
         sizes = 4 + 36 * (1 - r) ** 1.8
         alphas = 0.5 + 0.5 * (1 - r)
-        ax.scatter(x, y, c='cyan', s=sizes, alpha=alphas, edgecolor='none')
+        if is_3d[0]:
+            ax.scatter(x, y, np.zeros_like(x), c='cyan', s=sizes, alpha=alphas)
+        else:
+            ax.scatter(x, y, c='cyan', s=sizes, alpha=alphas, edgecolor='none')
 
-    # Helical Torus Light Flows
+    # Helical Torus Light Flows (3D enhanced)
     R, r_tube = 1.3, 0.4
     theta = np.linspace(0, 2 * np.pi, 150)
     for i, ring in enumerate(rings):
@@ -268,13 +305,58 @@ def update(val):
         active = ring.current_bit() == '1'
         color = ring.color if active else np.array([0.05, 0.05, 0.1])
         alpha = 1.0 if active else 0.2
-        phi = np.linspace(0, 4 * np.pi, 150) + i * 0.6
+        phi = np.linspace(0, 4 * np.pi, 150) + i * 0.6 + current_tick * 0.01
         x_h = (R + r_tube * np.cos(phi)) * np.cos(theta)
         y_h = (R + r_tube * np.cos(phi)) * np.sin(theta)
+        z_h = np.sin(theta) * 0.1  # Slight z-twist for 3D
         for j in range(len(theta) - 1):
-            ax.plot(x_h[j:j+2], y_h[j:j+2], color=color, alpha=alpha, lw=1.8)
+            if is_3d[0]:
+                ax.plot(x_h[j:j+2], y_h[j:j+2], z_h[j:j+2], color=color, alpha=alpha, lw=1.8)
+            else:
+                ax.plot(x_h[j:j+2], y_h[j:j+2], color=color, alpha=alpha, lw=1.8)
 
-    # Audio & alignment detection
+    # Spiraling Binary Bloom with Connections
+    for i, ring in enumerate(rings):
+        offset_x = (i % 3 - 1) * 0.5
+        offset_y = (i // 3 - 1) * 0.5
+        if len(ring.points_1) > 1:
+            if is_3d[0]:
+                phi_1 = np.arctan2(ring.points_1[:,1], ring.points_1[:,0])
+                theta_1 = np.linspace(0, 2*np.pi, len(ring.points_1))
+                x1 = (R + r_tube * np.cos(phi_1)) * np.cos(theta_1) + offset_x
+                y1 = (R + r_tube * np.cos(phi_1)) * np.sin(theta_1) + offset_y
+                z1 = r_tube * np.sin(phi_1)
+                ax.plot(x1, y1, z1, color=ring.color, alpha=0.3, lw=1)
+                ax.scatter(x1, y1, z1, c=ring.color, s=5, alpha=0.8)
+            else:
+                ax.plot(ring.points_1[:,0] + offset_x, ring.points_1[:,1] + offset_y, color=ring.color, alpha=0.3, lw=1)
+                ax.scatter(ring.points_1[:,0] + offset_x, ring.points_1[:,1] + offset_y, c=ring.color, s=5, alpha=0.8)
+        if len(ring.points_0) > 1:
+            if is_3d[0]:
+                phi_0 = np.arctan2(ring.points_0[:,1], ring.points_0[:,0])
+                theta_0 = np.linspace(0, 2*np.pi, len(ring.points_0))
+                x0 = (R + r_tube * np.cos(phi_0)) * np.cos(theta_0) + offset_x
+                y0 = (R + r_tube * np.cos(phi_0)) * np.sin(theta_0) + offset_y
+                z0 = r_tube * np.sin(phi_0)
+                ax.plot(x0, y0, z0, 'gray', linestyle='--', alpha=0.2, lw=1)
+                ax.scatter(x0, y0, z0, c='gray', s=2, alpha=0.4)
+            else:
+                ax.plot(ring.points_0[:,0] + offset_x, ring.points_0[:,1] + offset_y, 'gray', linestyle='--', alpha=0.2, lw=1)
+                ax.scatter(ring.points_0[:,0] + offset_x, ring.points_0[:,1] + offset_y, c='gray', s=2, alpha=0.4)
+
+        # Inter-codex layers (cross-connections for emergence)
+        if i > 0:
+            prev_ring = rings[i-1]
+            min_len = min(len(ring.points_1), len(prev_ring.points_1))
+            for j in range(min_len):
+                p1 = ring.points_1[j] + np.array([offset_x, offset_y])
+                p2 = prev_ring.points_1[j] + np.array([offset_x - 0.5, offset_y - 0.5])
+                if is_3d[0]:
+                    ax.plot([p1[0], p2[0]], [p1[1], p2[1]], [0, 0.1], color='white', alpha=0.1, lw=0.5)
+                else:
+                    ax.plot([p1[0], p2[0]], [p1[1], p2[1]], color='white', alpha=0.1, lw=0.5)
+
+    # Audio & alignment
     if current_tick != prev_tick:
         play_chord(rings)
         if check_alignment(rings):
@@ -288,16 +370,17 @@ def update(val):
             }
             alignment_log.append(event)
             print(f"ALIGNMENT #{len(alignment_log)} at {current_age:.3f} billion years (tick {current_tick:,})")
-            ax.text(0, 0, 'ALIGNMENT!', color='red', fontsize=24, ha='center', va='center')
+            ax.text(0, 0, 0 if is_3d[0] else None, 'ALIGNMENT!', color='red', fontsize=24, ha='center', va='center')
         prev_tick = current_tick
 
-    title = f"RHA — Helical Torus Light Flows (Tick {current_tick:,})"
-    ax.set_title(title, color='white', fontsize=16)
+    title = f"RHA — Emergent Toroid Patterns (Tick {current_tick:,} | Frame {int(slider_frame_rate.val)}ms | 3D: {is_3d[0]})"
+    fig.suptitle(title, color='white', fontsize=16)
     fig.canvas.draw_idle()
 
 slider_depth.on_changed(update)
 slider_tick.on_changed(update)
 slider_timeline.on_changed(update)
+slider_frame_rate.on_changed(update)
 
 # Initial draw
 update(None)
