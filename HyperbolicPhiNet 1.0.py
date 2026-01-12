@@ -7,7 +7,7 @@ import networkx as nx
 import random
 import numpy as np
 from scipy.spatial import KDTree
-
+from channel_decoder import FibonacciChannelDecoder
 # Device
 device = torch.device('cpu')
 torch.set_default_device(device)
@@ -85,7 +85,23 @@ class HoneycombPhiNet:
         
         direction = torch.zeros(self.dim)
         direction[:2] = base
+
+        # Project to Poincaré ball
+        query_pt = project_to_ball(padded.unsqueeze(0), self.net.c).squeeze(0)
         
+        # Find closest existing node
+        if self.net.tree is not None:
+            dist_np, idx_np = self.net.tree.query(query_pt.cpu().numpy().reshape(1, -1), k=1)
+            closest_node = idx_np[0][0]
+            hyperbolic_dist = dist(query_pt.unsqueeze(0), self.net.points[closest_node].unsqueeze(0), self.net.c).item()
+            print(f"→ Closest lattice node: {closest_node}")
+            print(f"   Hyperbolic distance: {hyperbolic_dist:.6f}")
+            print(f"   Node address (Zeckendorf): {zeckendorf_encode(closest_node)}")
+
+        return weighted, closest_node if self.net.tree else None
+
+    def closest_fib(self, n):
+        return min(self.fib, key=lambda f: abs(f - n))
         # Φ-decaying perturbations in higher dimensions ("uneven 5 more" resonance)
         if self.dim > 2:
             decay = (1 / PHI) ** torch.arange(2, self.dim)
