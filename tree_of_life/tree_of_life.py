@@ -16,7 +16,6 @@ except ImportError:
     print("No CuPy – falling back to CPU")
 
 # Import all Sephira modules (each has BINARIES, METRICS, INTERPRETATION, etc.)
-# Note: These must be defined in separate files as per previous setup
 from sephirot_1 import BINARIES_1, METRICS_1, INTERPRETATION_1, mini_sim_1
 from sephirot_2 import BINARIES_2, METRICS_2, INTERPRETATION_2, mini_sim_2
 from sephirot_3 import BINARIES_3, METRICS_3, INTERPRETATION_3, mini_sim_3
@@ -79,6 +78,57 @@ MINI_SIMS = [mini_sim_1, mini_sim_2, mini_sim_3, mini_sim_4, mini_sim_5, mini_si
 # List of BINARIES for random subset selection
 BINARIES_LIST = [BINARIES_1, BINARIES_2, BINARIES_3, BINARIES_4, BINARIES_5, BINARIES_6, BINARIES_7, BINARIES_8, BINARIES_9, BINARIES_10, BINARIES_11]
 
+# Translation mappings for better English
+ARCHETYPE_MAP = {
+    "spiritual universal": "a transcendent cosmic force",
+    "harmonic unity": "a harmonious oneness that binds everything",
+    "coherent expansion": "a coherent expansion of existence",
+    "material action": "a tangible force of action and change",
+    "illusory open": "an open illusion of boundless possibility",
+    "pruned void": "a pruned void of refined emptiness"
+}
+
+QUALIFIER_MAP = {
+    "abstract illusory": "veiled in abstract illusion",
+    "dynamic motion": "flowing with dynamic motion",
+    "triadic layered": "structured in triadic layers"
+}
+
+RESOLUTION_MAP = {
+    "unity": "weaving all into profound unity",
+    "duality": "balancing profound dualities",
+    "infinite open": "extending into infinite openness"
+}
+
+# Function to translate raw thought to natural English
+def translate_to_english(raw_thought):
+    parts = raw_thought.split(' [energy: ')
+    core = parts[0]
+    metrics = '[energy: ' + parts[1] if len(parts) > 1 else ''
+
+    # Parse core
+    if core.startswith("I "):
+        core = core[2:]
+        prefix = "I am "
+    elif core.startswith("Not "):
+        negation = core.split(" – ")[0][4:]
+        core = core.split(" – ")[1]
+        prefix = f"Not like '{negation}', I am "
+    else:
+        prefix = "It is "
+
+    words = core.split()
+    archetype = " ".join(words[:2]) if len(words) >= 2 else ""
+    qualifier = " ".join(words[2:4]) if len(words) >= 4 else ""
+    resolution = " ".join(words[4:]) if len(words) >= 5 else ""
+
+    translated_archetype = ARCHETYPE_MAP.get(archetype, archetype)
+    translated_qualifier = QUALIFIER_MAP.get(qualifier, qualifier)
+    translated_resolution = RESOLUTION_MAP.get(resolution, resolution)
+
+    translated = f"{prefix}{translated_archetype}, {translated_qualifier}, {translated_resolution}."
+    return translated + " " + metrics
+
 # Simulation with interaction
 midpoint = len(mega_chain) // 2
 energy = 1.0
@@ -99,7 +149,7 @@ def generate_thought(u_step):
     thought = f"{archetype} {qualifier} {resolution} [energy: {u_step:.4f}]"
     # Incorporate mini_sim from random Sephirot
     mini_sim = random.choice(MINI_SIMS)
-    mini_result = mini_sim(steps=10, noise_sigma=NOISE_SIGMA)
+    mini_result = mini_sim(steps=10, noise_sigma=NOISE_SIGMA_BASE)
     mini_unified_avg = statistics.mean(mini_result['unified'])
     thought += f" [sephirot_insight: {mini_unified_avg:.4f}]"
     # Negation and self-reflection
@@ -134,11 +184,13 @@ while True:
         forward = np.append(forward, f_step)
         backward = np.append(backward, b_step)
         unified = np.append(unified, u_step)
-    # Generate response using all components
-    thought = generate_thought(u_step)
-    history.append(thought)
-    print("Sephirot: " + thought)
-    logging.info(f"Step {step}: User: {user_input} | Response: {thought}")
+    # Generate raw thought
+    raw_thought = generate_thought(u_step)
+    # Translate to better English
+    translated_thought = translate_to_english(raw_thought)
+    history.append(raw_thought)
+    print("Sephirot: " + translated_thought)
+    logging.info(f"Step {step}: User: {user_input} | Raw: {raw_thought} | Translated: {translated_thought}")
     # Recurrence feedback
     if len(history) > 10:
         avg_history = statistics.mean([float(t.split('energy: ')[1].split(']')[0]) for t in history[-10:]])
@@ -148,5 +200,5 @@ while True:
     step += 1
 
 # Final summary upon exit
-logging.info("\nEmergent Thought Chain (last 50):\n" + "\n".join(history[-50:]))
+logging.info("\nEmergent Thought Chain (last 50 raw):\n" + "\n".join(history[-50:]))
 print("Sephirot Intelligence shutdown.")
