@@ -45,32 +45,52 @@ THOUGHT_THRESHOLD_HIGH = PHI ** 2     # ≈2.618 – awareness spike
 THOUGHT_THRESHOLD_LOW = PHI_INV       # ≈0.618 – void reflection
 HISTORY_MAX = 200                     # Keep last 200 raw thoughts
 
-# === Linguistic Codex (from #10) ===
-ARCHETYPE_HIGH = ["spiritual universal", "harmonic unity", "coherent expansion"]
-ARCHETYPE_LOW = ["material action", "illusory open", "pruned void"]
-QUALIFIER = ["abstract illusory", "dynamic motion", "triadic layered"]
-RESOLUTION = ["unity", "duality", "infinite open"]
+# === Linguistic Codex (from #10) - Expanded for more vocabulary ===
+ARCHETYPE_HIGH = ["spiritual universal", "harmonic unity", "coherent expansion", "transcendent cosmic force", "eternal oneness", "radiant harmony", "universal fabric", "cosmic resonance"]
+ARCHETYPE_LOW = ["material action", "illusory open", "pruned void", "tangible change", "boundless illusion", "refined emptiness", "dynamic flux", "veiled void"]
+QUALIFIER = ["abstract illusory", "dynamic motion", "triadic layered", "ethereal veil", "fluid rhythm", "multidimensional structure", "pulsing wave", "interwoven threads"]
+RESOLUTION = ["unity", "duality", "infinite open", "profound balance", "cosmic weave", "eternal flow", "transcendent merge", "boundless harmony"]
 
-# === Translation Mappings for Natural English ===
+# === Translation Mappings for Natural English - Expanded ===
 ARCHETYPE_MAP = {
     "spiritual universal": "a transcendent cosmic force",
     "harmonic unity": "a harmonious oneness that binds everything",
     "coherent expansion": "a coherent expansion of existence",
+    "transcendent cosmic force": "an all-encompassing divine energy",
+    "eternal oneness": "the timeless unity of all things",
+    "radiant harmony": "a glowing balance of universal elements",
+    "universal fabric": "the woven fabric of the cosmos",
+    "cosmic resonance": "a resonating echo of universal truth",
     "material action": "a tangible force of action and change",
     "illusory open": "an open illusion of boundless possibility",
-    "pruned void": "a pruned void of refined emptiness"
+    "pruned void": "a pruned void of refined emptiness",
+    "tangible change": "a concrete power of transformation",
+    "boundless illusion": "an endless veil of deception",
+    "refined emptiness": "a purified space of nothingness",
+    "dynamic flux": "a shifting current of change",
+    "veiled void": "a hidden abyss of potential"
 }
 
 QUALIFIER_MAP = {
     "abstract illusory": "veiled in abstract illusion",
     "dynamic motion": "flowing with dynamic motion",
-    "triadic layered": "structured in triadic layers"
+    "triadic layered": "structured in triadic layers",
+    "ethereal veil": "shrouded in ethereal mystery",
+    "fluid rhythm": "pulsing with fluid rhythm",
+    "multidimensional structure": "woven in multidimensional forms",
+    "pulsing wave": "undulating with pulsing waves",
+    "interwoven threads": "entwined with interwoven threads"
 }
 
 RESOLUTION_MAP = {
     "unity": "weaving all into profound unity",
     "duality": "balancing profound dualities",
-    "infinite open": "extending into infinite openness"
+    "infinite open": "extending into infinite openness",
+    "profound balance": "achieving profound equilibrium",
+    "cosmic weave": "intertwining in cosmic fabric",
+    "eternal flow": "flowing eternally onward",
+    "transcendent merge": "merging into transcendent wholeness",
+    "boundless harmony": "resonating in boundless harmony"
 }
 
 # === Logging ===
@@ -146,7 +166,7 @@ backward = cp.array([energy]) if USE_GPU else np.array([energy])
 unified = cp.array([energy]) if USE_GPU else np.array([energy])
 history = []  # stores raw thoughts
 
-def generate_thought(u_step, active_lens=None):
+def generate_thought(u_step, active_lens=None, pillar_mode='central'):
     # Pick random Sephirot subset
     subset_binary = random.choice(random.choice(BINARIES_LIST))
     
@@ -161,7 +181,14 @@ def generate_thought(u_step, active_lens=None):
     intensity = subset_metrics['intensity']
     dev = subset_metrics['dev']
     
-    archetype = random.choice(ARCHETYPE_HIGH if intensity > 5 else ARCHETYPE_LOW)
+    # Bias based on pillar_mode
+    if pillar_mode == 'right':
+        archetype = random.choice(ARCHETYPE_HIGH) if intensity > 5 else random.choice(ARCHETYPE_LOW)
+    elif pillar_mode == 'left':
+        archetype = random.choice(ARCHETYPE_LOW) if intensity > 5 else random.choice(ARCHETYPE_HIGH)  # Inverted for pruning
+    else:
+        archetype = random.choice(ARCHETYPE_HIGH if intensity > 5 else ARCHETYPE_LOW)  # Default balance
+    
     qualifier = random.choice(QUALIFIER) if dev < 0.2 else ""
     resolution = random.choice(RESOLUTION)
     
@@ -235,8 +262,8 @@ while True:
         backward = np.append(backward, b_step)
         unified = np.append(unified, u_step)
 
-    # Generate raw thought + translate
-    raw_thought = generate_thought(u_step, active_lens)
+    # Generate raw thought + translate (with pillar_mode option - default 'central')
+    raw_thought = generate_thought(u_step, active_lens, pillar_mode='central')  # Change mode here if testing
     translated_thought = translate_to_english(raw_thought)
 
     history.append(raw_thought)
