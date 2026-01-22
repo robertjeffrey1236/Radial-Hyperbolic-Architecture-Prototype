@@ -18,6 +18,13 @@ import re
 import numpy as np
 import logging
 
+try:
+    from sympy import symbols, solve
+    print("Sympy detected – mathematical simulation enabled in mini_sim_7")
+except ImportError:
+    solve = None
+    print("No Sympy – skipping mathematical simulation in mini_sim_7")
+
 # Golden ratio constants
 PHI = (1 + math.sqrt(5)) / 2  # ≈1.618
 PHI_INV = PHI - 1  # ≈0.618
@@ -78,7 +85,7 @@ Cumulative chaining (304 bits) yields spiritual/universal abstract/illusory unit
 Right Tower (Phi Expansion): Pulses dominate (204 1s vs. 100 0s), amplifying aware growth (avg pulse ~34).
 Left Tower (Inverse Phi Pruning): Breaths deepen (58-void max prune), damping to clarity.
 Central Tower (Unifying Light): Merges to golden whole, triadic sub-semantics.
-Non-linear fluidity: Midpoint (bits ~152) radiates forward to voids, backward to intellect coherence, creating loops.
+Non-linear fluidity: Midpoint (~152) radiates forward to voids, backward to intellect coherence, creating loops.
 
 Pillar Mapping
 Tiferet's harmony is beauty through integration—mind emerges radially from central harmony.
@@ -152,12 +159,20 @@ def mini_sim_7(steps=1000, noise_sigma=0.005 * PHI, log_file='sephirot_7_mini_lo
             state = "Subconscious"
         subset_metrics = compute_metrics(subset)
         thought = f"Awareness state [{state}] [energy: {u_step:.4f}, dev: {subset_metrics['dev']:.3f}]"
+        
+        # Enhanced: Add math relay if sympy available
+        if solve:
+            x = symbols('x')
+            eq = x**2 - PHI * x - 1  # Mock golden equation for relay
+            roots = solve(eq)
+            thought += f" [golden_roots: {roots}]"
+        
         history.append(thought)
         logging.info(f"Step {step}: {thought}")
         
         # Feedback: modulate noise with recent dev (tuning for harmony)
         if len(history) > 5:
-            recent_devs = [float(t.split('dev: ')[1][:-1]) for t in history[-5:] if 'dev: ' in t]
+            recent_devs = [float(t.split('dev: ')[1].split(']')[0]) for t in history[-5:] if 'dev: ' in t]
             avg_dev = statistics.mean(recent_devs) if recent_devs else 0.5
             noise_sigma = avg_dev * 0.001 * PHI_INV  # Inverse for pruning
     
