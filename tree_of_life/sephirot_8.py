@@ -18,6 +18,13 @@ import re
 import numpy as np
 import logging
 
+try:
+    from Bio.Seq import Seq
+    print("Biopython detected – biological simulation enabled in mini_sim_8")
+except ImportError:
+    Seq = None
+    print("No Biopython – skipping biological simulation in mini_sim_8")
+
 # Golden ratio constants
 PHI = (1 + math.sqrt(5)) / 2  # ≈1.618
 PHI_INV = PHI - 1  # ≈0.618
@@ -79,7 +86,7 @@ Chaining the 8 binaries cumulatively (390 bits) yields a spiritual/universal abs
 Right Tower (Phi Expansion): Pulses dominate, amplifying growth/diversification (avg pulse ~48.75).
 Left Tower (Inverse Phi Pruning): Breaths deepen, damping to endurance (dev 0.009 as homeostasis cost).
 Central Tower (Unifying Light): Merges to golden whole, triadic/dual sub-semantics.
-Non-linear fluidity: Midpoint (bits ~195) radiates forward to organism wholeness, backward to prebiotic emergence, creating loops.
+Non-linear fluidity: Midpoint (~195) radiates forward to organism wholeness, backward to prebiotic emergence, creating loops.
 
 Pillar Mapping in #8 Biology
 Netzach's victory is endurance through rhythms—life emerges radially from central harmony.
@@ -150,12 +157,19 @@ def mini_sim_8(steps=1000, noise_sigma=0.005 * PHI, log_file='sephirot_8_mini_lo
             state = "Rest"
         subset_metrics = compute_metrics(subset)
         thought = f"Vital dynamic [{state}] [energy: {u_step:.4f}, intensity: {subset_metrics['intensity']:.3f}]"
+        
+        # Enhanced: Add biological relay if biopython available
+        if Seq:
+            dna = Seq("ATGC" * 5)  # Mock DNA sequence for relay
+            protein = dna.translate()
+            thought += f" [protein_seq: {str(protein)[:10]}]"
+        
         history.append(thought)
         logging.info(f"Step {step}: {thought}")
         
         # Feedback: modulate noise with recent intensity (tuning for homeostasis)
         if len(history) > 5:
-            recent_intensities = [float(t.split('intensity: ')[1][:-1]) for t in history[-5:] if 'intensity: ' in t]
+            recent_intensities = [float(t.split('intensity: ')[1].split(']')[0]) for t in history[-5:] if 'intensity: ' in t]
             avg_intensity = statistics.mean(recent_intensities) if recent_intensities else 0.0
             noise_sigma = abs(avg_intensity) * 0.001 * PHI_INV
     
