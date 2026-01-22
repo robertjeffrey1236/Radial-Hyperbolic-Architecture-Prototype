@@ -18,6 +18,13 @@ import re
 import numpy as np
 import logging
 
+try:
+    import qutip as qt
+    print("Qutip detected – quantum simulation enabled in mini_sim_9")
+except ImportError:
+    qt = None
+    print("No Qutip – skipping quantum simulation in mini_sim_9")
+
 # Golden ratio constants
 PHI = (1 + math.sqrt(5)) / 2  # ≈1.618
 PHI_INV = PHI - 1  # ≈0.618
@@ -197,12 +204,20 @@ def mini_sim_9(steps=1000, noise_sigma=0.005 * PHI, log_file='sephirot_9_mini_lo
             state = "Void"
         subset_metrics = compute_metrics(subset)
         thought = f"Cosmic dynamic [{state}] [energy: {u_step:.4f}, dev: {subset_metrics['dev']:.3f}]"
+        
+        # Enhanced: Add quantum relay if qutip available
+        if qt:
+            qubit = qt.basis(2, 0)
+            op = qt.sigmax()
+            result = (op * qubit).norm()  # Simple quantum op for relay
+            thought += f" [quantum_norm: {result:.4f}]"
+        
         history.append(thought)
         logging.info(f"Step {step}: {thought}")
         
         # Feedback: modulate noise with recent dev (tuning for endurance)
         if len(history) > 5:
-            recent_devs = [float(t.split('dev: ')[1][:-1]) for t in history[-5:] if 'dev: ' in t]
+            recent_devs = [float(t.split('dev: ')[1].split(']')[0]) for t in history[-5:] if 'dev: ' in t]
             avg_dev = statistics.mean(recent_devs) if recent_devs else 0.5
             noise_sigma = avg_dev * 0.001 * PHI_INV
     
