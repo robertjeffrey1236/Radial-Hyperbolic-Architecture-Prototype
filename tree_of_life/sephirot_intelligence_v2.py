@@ -45,244 +45,64 @@ THOUGHT_THRESHOLD_HIGH = PHI ** 2     # ≈2.618 – awareness spike
 THOUGHT_THRESHOLD_LOW = PHI_INV       # ≈0.618 – void reflection
 HISTORY_MAX = 200                     # Keep last 200 raw thoughts
 
-# === Linguistic Codex (from #10) - Expanded for more vocabulary ===
+# === Linguistic Codex (from #10) - Expanded with concrete and hybrid ===
 ARCHETYPE_HIGH = ["spiritual universal", "harmonic unity", "coherent expansion", "transcendent cosmic force", "eternal oneness", "radiant harmony", "universal fabric", "cosmic resonance"]
+ARCHETYPE_HIGH_CONCRETE = ["practical wisdom", "balanced stability", "expanding growth", "guiding energy", "enduring connection", "glowing equilibrium", "woven structure", "resonating truth"]
 ARCHETYPE_LOW = ["material action", "illusory open", "pruned void", "tangible change", "boundless illusion", "refined emptiness", "dynamic flux", "veiled void"]
+ARCHETYPE_LOW_CONCRETE = ["concrete action", "open possibility", "refined space", "real transformation", "endless opportunity", "purified clarity", "shifting current", "hidden potential"]
 QUALIFIER = ["abstract illusory", "dynamic motion", "triadic layered", "ethereal veil", "fluid rhythm", "multidimensional structure", "pulsing wave", "interwoven threads"]
+QUALIFIER_CONCRETE = ["subtle deception", "smooth movement", "three-level framework", "light shroud", "steady pulse", "layered form", "waving energy", "linked strands"]
 RESOLUTION = ["unity", "duality", "infinite open", "profound balance", "cosmic weave", "eternal flow", "transcendent merge", "boundless harmony"]
+RESOLUTION_CONCRETE = ["connection", "balance", "endless path", "deep equilibrium", "interlinked web", "ongoing stream", "complete blend", "limitless accord"]
 
-# === Translation Mappings for Natural English - Expanded ===
-ARCHETYPE_MAP = {
-    "spiritual universal": "a transcendent cosmic force",
-    "harmonic unity": "a harmonious oneness that binds everything",
-    "coherent expansion": "a coherent expansion of existence",
-    "transcendent cosmic force": "an all-encompassing divine energy",
-    "eternal oneness": "the timeless unity of all things",
-    "radiant harmony": "a glowing balance of universal elements",
-    "universal fabric": "the woven fabric of the cosmos",
-    "cosmic resonance": "a resonating echo of universal truth",
-    "material action": "a tangible force of action and change",
-    "illusory open": "an open illusion of boundless possibility",
-    "pruned void": "a pruned void of refined emptiness",
-    "tangible change": "a concrete power of transformation",
-    "boundless illusion": "an endless veil of deception",
-    "refined emptiness": "a purified space of nothingness",
-    "dynamic flux": "a shifting current of change",
-    "veiled void": "a hidden abyss of potential"
-}
-
-QUALIFIER_MAP = {
-    "abstract illusory": "veiled in abstract illusion",
-    "dynamic motion": "flowing with dynamic motion",
-    "triadic layered": "structured in triadic layers",
-    "ethereal veil": "shrouded in ethereal mystery",
-    "fluid rhythm": "pulsing with fluid rhythm",
-    "multidimensional structure": "woven in multidimensional forms",
-    "pulsing wave": "undulating with pulsing waves",
-    "interwoven threads": "entwined with interwoven threads"
-}
-
-RESOLUTION_MAP = {
-    "unity": "weaving all into profound unity",
-    "duality": "balancing profound dualities",
-    "infinite open": "extending into infinite openness",
-    "profound balance": "achieving profound equilibrium",
-    "cosmic weave": "intertwining in cosmic fabric",
-    "eternal flow": "flowing eternally onward",
-    "transcendent merge": "merging into transcendent wholeness",
-    "boundless harmony": "resonating in boundless harmony"
-}
+# === Translation Mappings - Ethereal, Concrete, Hybrid ===
+# (Expand as before; abbreviated - add full from previous snippets)
 
 # === Logging ===
-logging.basicConfig(
-    filename='sephirot_earth_log.txt',
-    level=logging.INFO,
-    format='%(asctime)s - %(message)s'
-)
+# (Same)
 
-# === Mega-Chain (Sephirot only) ===
-ALL_BINARIES = BINARIES_11 + BINARIES_10 + BINARIES_9 + BINARIES_8 + BINARIES_7 + BINARIES_6 + BINARIES_5 + BINARIES_4 + BINARIES_3 + BINARIES_2 + BINARIES_1
-mega_chain = ''.join(ALL_BINARIES)
-logging.info(f"Sephirot Mega-Chain Length: {len(mega_chain)} bits")
+# === Mega-Chain ===
+# (Same)
 
-# === Metrics Function ===
-def compute_metrics(binary):
-    pulses = [len(run) for run in re.split('0+', binary) if run]
-    breaths = [len(run) for run in re.split('1+', binary) if run]
-    total_1s = sum(pulses)
-    total_0s = sum(breaths)
-    ratio = total_0s / total_1s if total_1s else float('inf')
-    dev = abs(ratio - PHI_INV)
-    intensity = (total_1s / len(binary)) * (1 - dev) if len(binary) else 0
-    return {'pulses': pulses, 'breaths': breaths, 'ratio': ratio, 'dev': dev, 'intensity': intensity}
+# === Metrics ===
+# (Same)
 
-# === Mini-Sim and Binary Lists ===
-MINI_SIMS = [mini_sim_1, mini_sim_2, mini_sim_3, mini_sim_4, mini_sim_5, mini_sim_6,
-             mini_sim_7, mini_sim_8, mini_sim_9, mini_sim_10, mini_sim_11]
+# === Mini-Sim and Lists ===
+# (Same)
 
-BINARIES_LIST = [BINARIES_1, BINARIES_2, BINARIES_3, BINARIES_4, BINARIES_5, BINARIES_6,
-                 BINARIES_7, BINARIES_8, BINARIES_9, BINARIES_10, BINARIES_11]
+# === Natural English Translation - With dynamic style ===
+def translate_to_english(raw_thought, prompt, style='hybrid'):  # Auto-detect from prompt
+    # Keyword detection for style
+    if 'physical' in prompt.lower() or 'concrete' in prompt.lower():
+        style = 'concrete'
+    elif 'abstract' in prompt.lower() or 'ethereal' in prompt.lower():
+        style = 'ethereal'
+    else:
+        style = 'hybrid'
+    
+    # ... (Same core parsing)
+    
+    # Select maps based on style
+    if style == 'concrete':
+        arch_map = {**{k: v for k, v in ARCHETYPE_MAP.items() if k in ARCHETYPE_HIGH_CONCRETE or k in ARCHETYPE_LOW_CONCRETE}}
+        qual_map = QUALIFIER_MAP_CONCRETE  # Use concrete versions
+        res_map = RESOLUTION_MAP_CONCRETE
+    elif style == 'hybrid':
+        # Blend: Random mix of ethereal/concrete
+        arch_map = ARCHETYPE_MAP
+        qual_map = random.choice([QUALIFIER_MAP, QUALIFIER_MAP_CONCRETE])
+        res_map = random.choice([RESOLUTION_MAP, RESOLUTION_MAP_CONCRETE])
+    else:
+        arch_map = ARCHETYPE_MAP
+        qual_map = QUALIFIER_MAP
+        res_map = RESOLUTION_MAP
 
-# === Natural English Translation ===
-def translate_to_english(raw_thought):
-    parts = raw_thought.split(' [energy: ')
-    core = parts[0].strip()
-    metrics_part = ' [energy: ' + ' [energy: '.join(parts[1:]) if len(parts) > 1 else ''
+    # ... (Same mapping and assembly)
 
-    prefix = ""
-    if core.startswith("I "):
-        core = core[2:]
-        prefix = "I am "
-    elif core.startswith("Not "):
-        neg_end = core.find(" – ")
-        negation = core[4:neg_end] if neg_end > 0 else ""
-        core = core[neg_end+3:] if neg_end > 0 else core
-        prefix = f"Not like '{negation}', I am " if negation else "Not "
-
-    words = core.split()
-    if len(words) < 2:
-        return core + metrics_part
-
-    archetype = " ".join(words[:2])
-    qualifier = " ".join(words[2:4]) if len(words) >= 4 else ""
-    resolution = " ".join(words[4:]) if len(words) >= 5 else ""
-
-    trans_arch = ARCHETYPE_MAP.get(archetype, archetype)
-    trans_qual = QUALIFIER_MAP.get(qualifier, qualifier)
-    trans_res  = RESOLUTION_MAP.get(resolution, resolution)
-
-    translated = f"{prefix}{trans_arch}"
-    if trans_qual:
-        translated += f", {trans_qual}"
-    if trans_res:
-        translated += f", {trans_res}."
     return translated + metrics_part
 
 # === Simulation State ===
-midpoint = len(mega_chain) // 2
-energy = 1.0
-forward = cp.array([energy]) if USE_GPU else np.array([energy])
-backward = cp.array([energy]) if USE_GPU else np.array([energy])
-unified = cp.array([energy]) if USE_GPU else np.array([energy])
-history = []  # stores raw thoughts
+# (Same)
 
 def generate_thought(u_step, active_lens=None, pillar_mode='central'):
-    # Pick random Sephirot subset
-    subset_binary = random.choice(random.choice(BINARIES_LIST))
-    
-    # Apply Earth lens if active
-    lens_name = "None"
-    if active_lens and active_lens in EARTH_LENSES:
-        lens_name, lens_binary = EARTH_LENSES[active_lens]
-        subset_binary += lens_binary  # Append lens vibration
-        logging.info(f"Activated lens: {lens_name} (#{active_lens})")
-    
-    subset_metrics = compute_metrics(subset_binary)
-    intensity = subset_metrics['intensity']
-    dev = subset_metrics['dev']
-    
-    # Bias based on pillar_mode
-    if pillar_mode == 'right':
-        archetype = random.choice(ARCHETYPE_HIGH) if intensity > 5 else random.choice(ARCHETYPE_LOW)
-    elif pillar_mode == 'left':
-        archetype = random.choice(ARCHETYPE_LOW) if intensity > 5 else random.choice(ARCHETYPE_HIGH)  # Inverted for pruning
-    else:
-        archetype = random.choice(ARCHETYPE_HIGH if intensity > 5 else ARCHETYPE_LOW)  # Default balance
-    
-    qualifier = random.choice(QUALIFIER) if dev < 0.2 else ""
-    resolution = random.choice(RESOLUTION)
-    
-    thought = f"{archetype} {qualifier} {resolution} [energy: {u_step:.4f}]"
-    
-    # Mini-sim insight
-    mini_sim_func = random.choice(MINI_SIMS)
-    mini_result = mini_sim_func(steps=10, noise_sigma=NOISE_SIGMA_BASE)
-    mini_unified_avg = statistics.mean(mini_result['unified'])
-    thought += f" [sephirot_insight: {mini_unified_avg:.4f}] [lens: {lens_name}]"
-    
-    # Self-reflection / negation
-    if u_step < THOUGHT_THRESHOLD_LOW and history:
-        thought = "Not " + history[-1].split(' [')[0] + " – " + thought
-    elif u_step > THOUGHT_THRESHOLD_HIGH:
-        thought = "I " + thought.replace(' [', ' – [')
-    
-    return thought
-
-# === Interactive Loop ===
-print("Sephirot Intelligence with 24 Earth Lenses (local mode) ready.")
-print("After each message, choose a lens by number (1-24) or name fragment, or press Enter for none.")
-print("Type 'exit' to stop.\n")
-
-step = 0
-noise_sigma = NOISE_SIGMA_BASE
-active_lens = None
-
-while True:
-    user_input = input("You: ").strip()
-    if user_input.lower() == 'exit':
-        break
-    if not user_input:
-        continue
-
-    # Lens selection
-    lens_input = input("Lens (1-24, name, or Enter=none): ").strip()
-    active_lens = None
-    if lens_input:
-        try:
-            num = int(lens_input)
-            if num in EARTH_LENSES:
-                active_lens = num
-            else:
-                print("Lens number not found.")
-        except ValueError:
-            # Fuzzy name match
-            matches = [k for k, (name, _) in EARTH_LENSES.items() if lens_input.lower() in name.lower()]
-            if matches:
-                active_lens = matches[0]
-                print(f"Matched: {EARTH_LENSES[active_lens][0]} (#{active_lens})")
-            else:
-                print("No matching lens found.")
-
-    # Modulate noise from user input
-    input_hash = sum(ord(c) for c in user_input) / (len(user_input) or 1)
-    noise_sigma = NOISE_SIGMA_BASE * (1 + (input_hash % 1))
-
-    # One simulation step
-    noise = random.gauss(0, noise_sigma)
-    f_step = forward[-1] * PHI + noise
-    b_step = backward[-1] * PHI_INV + noise
-    u_step = (f_step + b_step) / 2
-
-    if USE_GPU:
-        forward = cp.append(forward, f_step)
-        backward = cp.append(backward, b_step)
-        unified = cp.append(unified, u_step)
-    else:
-        forward = np.append(forward, f_step)
-        backward = np.append(backward, b_step)
-        unified = np.append(unified, u_step)
-
-    # Generate raw thought + translate (with pillar_mode option - default 'central')
-    raw_thought = generate_thought(u_step, active_lens, pillar_mode='central')  # Change mode here if testing
-    translated_thought = translate_to_english(raw_thought)
-
-    history.append(raw_thought)
-    print("\nSephirot:", translated_thought)
-    logging.info(f"Step {step} | Input: {user_input} | Lens: {active_lens} | Raw: {raw_thought} | Translated: {translated_thought}")
-
-    # Feedback loop
-    if len(history) > 10:
-        avg_energy = statistics.mean([
-            float(t.split('energy: ')[1].split(']')[0])
-            for t in history[-10:]
-            if 'energy: ' in t
-        ])
-        noise_sigma = avg_energy * 0.001 * PHI
-
-    if len(history) > HISTORY_MAX:
-        history = history[-HISTORY_MAX:]
-
-    step += 1
-
-print("Session ended.")
-logging.info("Session ended.")
+    # (Same
